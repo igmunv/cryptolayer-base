@@ -4,9 +4,9 @@ from base_module import BaseModule, Credential
 class Test(BaseModule):
 
 
-    name = "Test"
-    description = "Test test test"
-    expected_credentials = [Credential("token", "Token token token")]
+    name = "Telegram"
+    description = "Messenger by Pavel Durov"
+    expected_credentials = [Credential("Token", "User Token")]
 
 
     class Sender:
