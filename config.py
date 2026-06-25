@@ -32,7 +32,7 @@ DICT_WORDCODER_RU = {
     0x1C: "гал", 0x1D: "гам", 0x1E: "гар", 0x1F: "гвоздь",
     0x20: "гви", 0x21: "где", 0x22: "гид", 0x23: "гин",
     0x24: "гип", 0x25: "гир", 0x26: "глаз", 0x27: "глу",
-    0x28: "гн", 0x29: "гн", 0x2A: "го", 0x2B: "гол",
+    0x28: "гн", 0x29: "гм", 0x2A: "го", 0x2B: "гол",
     0x2C: "гон", 0x2D: "гор", 0x2E: "гост", 0x2F: "граф",
     0x30: "грек", 0x31: "гриб", 0x32: "гроб", 0x33: "гром",
     0x34: "грош", 0x35: "груз", 0x36: "гув", 0x37: "гуж",
@@ -87,3 +87,25 @@ DICT_WORDCODER_RU = {
     0xF8: "кош", 0xF9: "кощ", 0xFA: "кр", 0xFB: "куб",
     0xFC: "кум", 0xFD: "куш", 0xFE: "лье", 0xFF: "мэр"
 }
+
+
+# Проверка DICT_WORDCODER_RU на дубликаты
+# (нужно будет перенести в другое место, т.е проверка при загрузке пользовательского словаря)
+
+words = list(DICT_WORDCODER_RU.values())
+
+if len(words) != len(set(words)):
+    duplicates = []
+
+    seen = set()
+    for word in words:
+        if word in seen:
+            duplicates.append(word)
+        else:
+            seen.add(word)
+
+    raise ValueError(
+        f"Duplicates in DICT_WORDCODER_RU: {', '.join(sorted(set(duplicates)))}"
+    )
+
+

@@ -76,7 +76,6 @@ class Sender:
         for n, chunk in enumerate(chunks):
 
             packet = pckt.Packet(packet_type, chunk, len(chunks), self.CURRENT_STREAM_ID, n).to_bytes()
-            self.CURRENT_STREAM_ID = (self.CURRENT_STREAM_ID + 1) % 256
 
             # подпись пакета
             if do_sign:
@@ -85,16 +84,12 @@ class Sender:
                     ec.ECDSA(hashes.SHA256())
                 )
 
-                print("signatur3", signature)
-                print("packet", packet)
-
                 public_bytes = self.private_key.public_key().public_bytes(
                     encoding=serialization.Encoding.DER,
                     format=serialization.PublicFormat.SubjectPublicKeyInfo
                 )
 
                 public_key_hex = public_bytes.hex()
-                print("public", public_key_hex)
 
                 # объединяем (подпись + пакет)
                 sig_len = len(signature).to_bytes(1, 'big')
@@ -105,6 +100,8 @@ class Sender:
             encoded_packet = wc.encode(packet)
 
             encoded_packets.append(encoded_packet)
+
+        self.CURRENT_STREAM_ID = (self.CURRENT_STREAM_ID + 1) % 256
 
         return encoded_packets
 

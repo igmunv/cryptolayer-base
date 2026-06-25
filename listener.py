@@ -31,17 +31,15 @@ class Listener:
 
         # текст в массив
         encoded_packet = text.split(" ")
-        print(1)
+
         # декодируем
         wc = wordcoder.WordCoder(config.DICT_WORDCODER_RU)
         decoded_packet = wc.decode(encoded_packet)
-        print(2)
+
         # парсинг подписи
         sig_len = decoded_packet[0]
-        signature = decoded_packet[1 : 1 + sig_len]
-        raw_packet = decoded_packet[1 + sig_len :]
-        print("signature", signature)
-        print("raw_packet", raw_packet)
+        signature = bytes(decoded_packet[1 : 1 + sig_len])
+        raw_packet = bytes(decoded_packet[1 + sig_len :])
 
         public_bytes = self.companion_public_key.public_bytes(
             encoding=serialization.Encoding.DER,
@@ -49,24 +47,21 @@ class Listener:
         )
 
         public_key_hex = public_bytes.hex()
-        print("public", public_key_hex)
 
-        print(3)
         # проверить подпись
         if not self.check_sign(signature, raw_packet):
             # может потом просто делать return при неправильной подписи
             raise ValueError("sign error") # временно
-        print(4)
+
         # парсинг заголовка пакета
         packet = pckt.Packet.from_bytes(raw_packet)
-        print(5)
+
         # должны принять все чанки данного потока байтов
 
         # записываем в ожидаемые стримы
         if packet.stream_id not in self.WAITING_STREAMS:
             self.WAITING_STREAMS[packet.stream_id] = {"count": packet.chunk_count, "pack_type": packet.pack_type, "packets": []}
         self.WAITING_STREAMS[packet.stream_id]["packets"].append({"chunk_id": packet.chunk_id, "payload": packet.payload})
-        print(6)
         if self.WAITING_STREAMS[packet.stream_id]["count"] == len(self.WAITING_STREAMS[packet.stream_id]["packets"]):
 
             # собрать данные в один цельный кусок
