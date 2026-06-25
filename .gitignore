@@ -1,2 +1,8 @@
 *.drawio.bkp
 data/
+**/__pycache__/
+*.pyc
+*.kate-swp
+**.drawio.bkp
+**.drawio.dtmp
+**.log

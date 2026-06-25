@@ -95,56 +95,56 @@
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-42" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" value="Mes-r&lt;div&gt;Config&lt;/div&gt;" vertex="1">
           <mxGeometry height="120" width="40" x="480" y="80" as="geometry" />
         </mxCell>
-        <mxCell id="CBcbkMl6oe1MXUTTj6yJ-44" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Размер пакета" vertex="1">
-          <mxGeometry height="40" width="120" x="880" y="240" as="geometry" />
+        <mxCell id="CBcbkMl6oe1MXUTTj6yJ-44" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Размер payload" vertex="1">
+          <mxGeometry height="40" width="120" x="1180" y="240" as="geometry" />
         </mxCell>
-        <mxCell id="CBcbkMl6oe1MXUTTj6yJ-45" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="4 б" vertex="1">
-          <mxGeometry height="40" width="40" x="920" y="200" as="geometry" />
+        <mxCell id="CBcbkMl6oe1MXUTTj6yJ-45" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="2 б" vertex="1">
+          <mxGeometry height="40" width="40" x="1220" y="200" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-47" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Тип пакета (&lt;font style=&quot;font-size: 11px;&quot;&gt;служебный, общения)&lt;/font&gt;" vertex="1">
-          <mxGeometry height="40" width="120" x="1000" y="240" as="geometry" />
+          <mxGeometry height="40" width="120" x="700" y="240" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-48" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="1 б" vertex="1">
-          <mxGeometry height="40" width="40" x="1040" y="200" as="geometry" />
+          <mxGeometry height="40" width="40" x="740" y="200" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-49" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Payload" vertex="1">
-          <mxGeometry height="40" width="240" x="1120" y="240" as="geometry" />
+          <mxGeometry height="40" width="240" x="1300" y="240" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-50" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="~" vertex="1">
-          <mxGeometry height="40" width="40" x="1220" y="200" as="geometry" />
+          <mxGeometry height="40" width="40" x="1400" y="200" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-51" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Общая структура пакета" vertex="1">
           <mxGeometry height="30" width="480" x="880" y="165" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-52" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Вид Payload при служебном типе пакета" vertex="1">
-          <mxGeometry height="30" width="480" x="880" y="325" as="geometry" />
+          <mxGeometry height="30" width="480" x="880" y="510" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-53" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Тип команды" vertex="1">
-          <mxGeometry height="40" width="120" x="880" y="400" as="geometry" />
+          <mxGeometry height="40" width="120" x="880" y="585" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-54" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="1б" vertex="1">
-          <mxGeometry height="40" width="40" x="920" y="360" as="geometry" />
+          <mxGeometry height="40" width="40" x="920" y="545" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-55" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Data" vertex="1">
-          <mxGeometry height="40" width="360" x="1000" y="400" as="geometry" />
+          <mxGeometry height="40" width="360" x="1120" y="585" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-56" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="~" vertex="1">
-          <mxGeometry height="40" width="40" x="1160" y="360" as="geometry" />
+          <mxGeometry height="40" width="40" x="1280" y="545" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-58" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Вид Payload при типе пакета общения" vertex="1">
-          <mxGeometry height="30" width="480" x="880" y="485" as="geometry" />
+          <mxGeometry height="30" width="480" x="880" y="670" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-59" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Тип данных&lt;div&gt;(текст, фото, аудио)&lt;/div&gt;" vertex="1">
-          <mxGeometry height="40" width="120" x="880" y="560" as="geometry" />
+          <mxGeometry height="40" width="120" x="880" y="745" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-60" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="1б" vertex="1">
-          <mxGeometry height="40" width="40" x="920" y="520" as="geometry" />
+          <mxGeometry height="40" width="40" x="920" y="705" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-61" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Data" vertex="1">
-          <mxGeometry height="40" width="360" x="1000" y="560" as="geometry" />
+          <mxGeometry height="40" width="360" x="1120" y="745" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-62" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="~" vertex="1">
-          <mxGeometry height="40" width="40" x="1160" y="520" as="geometry" />
+          <mxGeometry height="40" width="40" x="1280" y="705" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-65" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontStyle=1;fontSize=22;" value="Инициализация" vertex="1">
           <mxGeometry height="30" width="300" x="170" y="10" as="geometry" />
@@ -234,14 +234,44 @@
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-89" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" value="МЕССЕНДЖЕР" vertex="1">
           <mxGeometry height="40" width="200" x="200" y="1710" as="geometry" />
         </mxCell>
-        <mxCell id="CBcbkMl6oe1MXUTTj6yJ-92" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;b&gt;Во время инициализации:&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;div&gt;1. Передача ключей&lt;/div&gt;&lt;div&gt;&lt;div&gt;2. Работа с подписями&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="80" width="175" x="480" y="1360" as="geometry" />
+        <mxCell id="CBcbkMl6oe1MXUTTj6yJ-92" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;b&gt;Во время инициализации:&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;div&gt;1. Передача ключей шифрования&lt;/div&gt;&lt;div&gt;&lt;div&gt;2. Работа с подписями&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="210" x="480" y="1360" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-96" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="1" vertex="1">
           <mxGeometry height="20" width="20" x="400" y="1400" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-97" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="2" vertex="1">
           <mxGeometry height="20" width="20" x="440" y="1400" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Количество чанков" vertex="1">
+          <mxGeometry height="40" width="120" x="820" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-3" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="2 б" vertex="1">
+          <mxGeometry height="40" width="40" x="860" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Номер (ID) потока байтов" vertex="1">
+          <mxGeometry height="40" width="120" x="940" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-5" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="1 б" vertex="1">
+          <mxGeometry height="40" width="40" x="980" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Номер (ID) чанка" vertex="1">
+          <mxGeometry height="40" width="120" x="1060" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-7" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="2 б" vertex="1">
+          <mxGeometry height="40" width="40" x="1100" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Размер Data" vertex="1">
+          <mxGeometry height="40" width="120" x="1000" y="745" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-10" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="2 б" vertex="1">
+          <mxGeometry height="40" width="40" x="1040" y="705" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Размер Data" vertex="1">
+          <mxGeometry height="40" width="120" x="1000" y="585" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-12" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="2 б" vertex="1">
+          <mxGeometry height="40" width="40" x="1040" y="545" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

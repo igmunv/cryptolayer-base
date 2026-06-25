@@ -1,77 +1,106 @@
-import zstandard as zstd
+import os
+
+import lzma
+
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric.utils import Prehashed
+
+import wordcoder
+import packet as pckt
+import config
 
 
-# Буффер ожидания. Нужен для
-WAITING_BUFFER = []
-
-
-# Отвечает за отправку данных в мессенджер
-# Также должен следить за тем чтобы не отправлялось больше 1 сообщения в 2 секунды
+# Отвечает за отправку данных (но не за мессенджер и его настройки)
 class Sender:
 
-    user_id = None
-    aes_key = None
 
-    def __init__(self, user_id, aes_key):
-        self.user_id = user_id
+    aes_key = None
+    private_key = None
+    module = None
+
+    CURRENT_STREAM_ID = 0
+
+
+    def __init__(self, aes_key, private_key, module):
         self.aes_key = aes_key
+        self.private_key = private_key
+        self.module = module
 
     def update_aes_key(self, new_aes_key):
         self.aes_key = new_aes_key
 
-    # Эти функции работают с пакетами
-    def send_service(self, cmd_type, data):
-        pass
+    def send_service(self, cmd_type, data: bytes):
+        packet = pckt.PayloadPacket(cmd_type, data).to_bytes()
+        self._send(packet, pckt.PackTypes.SERVICE.value)
 
-    def send_comunic(self, data_type, data):
-        pass
+    def send_comunic(self, data_type, data: bytes):
+        packet = pckt.PayloadPacket(data_type, data).to_bytes()
+        self._send(packet, pckt.PackTypes.COMMUNIC.value)
+
+    def send_node_id(self, node_id: str):
+        packet = pckt.PayloadPacket(pckt.CMDTypes.MY_NODE_ID.value, node_id.encode()).to_bytes()
+        self._send(packet, pckt.PackTypes.SERVICE.value, do_encrypt=False, do_sign=False)
+
+    def send_sign(self, sign: bytes):
+        packet = pckt.PayloadPacket(pckt.CMDTypes.MY_SIGN.value, sign).to_bytes()
+        self._send(packet, pckt.PackTypes.SERVICE.value, do_encrypt=False, do_sign=False)
+
+    def send_public_key(self, public_key: bytes):
+        packet = pckt.PayloadPacket(pckt.CMDTypes.MY_PUBLIC_KEY.value, public_key).to_bytes()
+        self._send(packet, pckt.PackTypes.SERVICE.value, do_encrypt=False, do_sign=True)
 
     # Здесь происходит сжатие, шифрование, подпись, кодировка
-    def data_preparation(self, raw_data) -> str:
+    # Возращаем уже готовый для отправки массив пакетов
+    def data_preparation(self, raw_data: bytes, packet_type, do_encrypt=True, do_sign=True):
 
         # сжатие
-        cctx = zstd.ZstdCompressor(level=9)
-        compressed_data = cctx.compress(raw_data)
+        data = lzma.compress(raw_data)
 
         # шифрование
-
-        # подпись
-
-        # кодирование
-
-        pass
-
-    def _send(self, raw_data):
-        ready_message = data_preparation(raw_data)
-        module.send(ready_message)
+        if do_encrypt:
+            aesgcm = AESGCM(self.aes_key)
+            nonce = os.urandom(12)
+            encrypted_data = aesgcm.encrypt(nonce, data, associated_data=None)
+            data = nonce + encrypted_data
 
 
-# Выполняет роль прослойки между нами и мессенджером
-class Messenger:
+        # разбиваем байты на чанки по config.CHUNK_SIZE байт
+        chunks = [data[i:i + config.CHUNK_SIZE] for i in range(0, len(data), config.CHUNK_SIZE)]
 
-    # Для общения
+        encoded_packets = []
 
-    def send_bytes(self):
-        pass
+        for n, chunk in enumerate(chunks):
 
-    # Служебные
+            packet = pckt.Packet(packet_type, chunk, len(chunks), self.CURRENT_STREAM_ID, n).to_bytes()
+            self.CURRENT_STREAM_ID = (self.CURRENT_STREAM_ID + 1) % 256
 
-    def ping(self) -> bool:
-        pass
 
-    def disconnect(self):
-        pass
+            # подпись пакета
+            if do_sign:
+                signature = self.private_key.sign(
+                    packet,
+                    ec.ECDSA(hashes.SHA256())
+                )
 
-    def update_keys(self):
-        pass
+                # объединяем (подпись + пакет)
+                sig_len = len(signature).to_bytes(1, 'big')
+                packet = sig_len + signature + packet
 
-    # Служебные без шифрования
+            # кодирование (ТОЛЬКО ПЕРЕД ОТПРАВКОЙ СООБЩЕНИЯ)
+            wc = wordcoder.WordCoder(config.DICT_WORDCODER_RU)
+            encoded_packet = wc.encode(packet)
 
-    def send_node_id(self):
-        pass
+            encoded_packets.append(encoded_packet)
 
-    def send_signature(self):
-        pass
+        return encoded_packets
 
-    def send_public_key(self):
-        pass
+    def _send(self, raw_data, packet_type, do_encrypt=True, do_sign=True):
+
+        ready_packets = self.data_preparation(raw_data, packet_type, do_encrypt=do_encrypt, do_sign=do_sign)
+
+        for packet in ready_packets:
+            module.Sender.send(" ".join(packet))
+            time.sleep(config.DELAY)
+            pass

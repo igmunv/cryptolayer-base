@@ -24,8 +24,10 @@ class BaseModule:
 
     class Sender:
 
-        def __init__(self, credentials):
-            pass
+        user_id = None
+
+        def __init__(self, credentials, user_id):
+            self.user_id = user_id
 
         def send(self, text: str):
             pass
@@ -35,10 +37,12 @@ class BaseModule:
 
 
         ingester = None
+        user_id = None
 
 
-        def __init__(self, credentials, ingester: callable):
+        def __init__(self, credentials, ingester: callable, user_id):
             self.ingester = ingester
+            self.user_id = user_id
 
         def listen(self) -> str:
             pass
@@ -54,10 +58,10 @@ class BaseModule:
             raise TypeError(f"Class {cls.__name__} must define a unique 'description' attribute")
 
 
-    def create_session(self, credentials, ingester: callable):
+    def create_session(self, credentials, ingester: callable, user_id):
 
-        self.sender = self.Sender(credentials)
-        self.listener = self.Listener(credentials, ingester)
+        self.sender = self.Sender(credentials, user_id)
+        self.listener = self.Listener(credentials, ingester, user_id)
 
 
     def get_exp_creds(self):
