@@ -47,7 +47,7 @@ def main():
     init()
 
     AES_KEY = os.urandom(32)
-    sndr = sender.Sender(1, AES_KEY, SIGN_PRIVATE_KEY)
+    sndr = sender.Sender(AES_KEY, SIGN_PRIVATE_KEY, None)
     sndr._send("Learning English effectively requires daily immersion and steady practice across all four core skills: listening, speaking, reading, and writing. The fastest path to fluency involves surrounding yourself with the language—consume native content, practice speaking out loud every day, and focus on practical, consistent routines rather than just memorizing grammar.Память: Требует много оперативной памяти. Важно учитывать, что распаковка файлов, сжатых на 22-м уровне, также потребует больше ОЗУ, чем при использовании низких уровней.".encode(), packet.PackTypes.COMMUNIC.value)
 
 

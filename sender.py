@@ -6,10 +6,12 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives.asymmetric.utils import Prehashed
+from cryptography.hazmat.primitives import serialization
 
 import wordcoder
 import packet as pckt
 import config
+import listener
 
 
 # Отвечает за отправку данных (но не за мессенджер и его настройки)
@@ -76,13 +78,23 @@ class Sender:
             packet = pckt.Packet(packet_type, chunk, len(chunks), self.CURRENT_STREAM_ID, n).to_bytes()
             self.CURRENT_STREAM_ID = (self.CURRENT_STREAM_ID + 1) % 256
 
-
             # подпись пакета
             if do_sign:
                 signature = self.private_key.sign(
                     packet,
                     ec.ECDSA(hashes.SHA256())
                 )
+
+                print("signatur3", signature)
+                print("packet", packet)
+
+                public_bytes = self.private_key.public_key().public_bytes(
+                    encoding=serialization.Encoding.DER,
+                    format=serialization.PublicFormat.SubjectPublicKeyInfo
+                )
+
+                public_key_hex = public_bytes.hex()
+                print("public", public_key_hex)
 
                 # объединяем (подпись + пакет)
                 sig_len = len(signature).to_bytes(1, 'big')
@@ -99,8 +111,11 @@ class Sender:
     def _send(self, raw_data, packet_type, do_encrypt=True, do_sign=True):
 
         ready_packets = self.data_preparation(raw_data, packet_type, do_encrypt=do_encrypt, do_sign=do_sign)
+        lstn = listener.Listener(self.aes_key, self.private_key.public_key())
 
         for packet in ready_packets:
-            module.Sender.send(" ".join(packet))
-            time.sleep(config.DELAY)
+            ready_text = " ".join(packet)
+            lstn.ingester(ready_text)
+            # module.Sender.send(ready_text)
+            # time.sleep(config.DELAY)
             pass

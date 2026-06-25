@@ -1,6 +1,6 @@
 <mxfile host="Electron">
   <diagram name="Page-1" id="zEX1-Cbp2asFqXu51f78">
-    <mxGraphModel dx="1178" dy="723" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1285" dy="788" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -188,7 +188,7 @@
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-84" edge="1" parent="1" source="CBcbkMl6oe1MXUTTj6yJ-77" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="CBcbkMl6oe1MXUTTj6yJ-82">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="CBcbkMl6oe1MXUTTj6yJ-77" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="Подпись сообщения" vertex="1">
+        <mxCell id="CBcbkMl6oe1MXUTTj6yJ-77" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="Подпись пакета" vertex="1">
           <mxGeometry height="40" width="120" x="240" y="1440" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-80" edge="1" parent="1" source="CBcbkMl6oe1MXUTTj6yJ-78" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="CBcbkMl6oe1MXUTTj6yJ-75">
@@ -210,7 +210,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="CBcbkMl6oe1MXUTTj6yJ-78" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Сжатие байтов: gzip" vertex="1">
+        <mxCell id="CBcbkMl6oe1MXUTTj6yJ-78" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Сжатие байтов: lzma" vertex="1">
           <mxGeometry height="40" width="120" x="240" y="1320" as="geometry" />
         </mxCell>
         <mxCell id="CBcbkMl6oe1MXUTTj6yJ-86" edge="1" parent="1" source="CBcbkMl6oe1MXUTTj6yJ-82" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="CBcbkMl6oe1MXUTTj6yJ-85">
@@ -272,6 +272,104 @@
         </mxCell>
         <mxCell id="PpiACjPOW8XVFr_PYozS-12" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="2 б" vertex="1">
           <mxGeometry height="40" width="40" x="1040" y="545" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-15" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Сообщение пользователя" vertex="1">
+          <mxGeometry height="40" width="120" x="720" y="1120" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-17" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Служебное сообщение" vertex="1">
+          <mxGeometry height="40" width="120" x="880" y="1120" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-49" edge="1" parent="1" source="PpiACjPOW8XVFr_PYozS-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="PpiACjPOW8XVFr_PYozS-15">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="830" y="1180" />
+              <mxPoint x="780" y="1180" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-50" edge="1" parent="1" source="PpiACjPOW8XVFr_PYozS-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="PpiACjPOW8XVFr_PYozS-17">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="890" y="1180" />
+              <mxPoint x="940" y="1180" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-19" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="Пакет" vertex="1">
+          <mxGeometry height="40" width="120" x="800" y="1200" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-48" edge="1" parent="1" source="PpiACjPOW8XVFr_PYozS-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="PpiACjPOW8XVFr_PYozS-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="Сырые байты" vertex="1">
+          <mxGeometry height="40" width="120" x="800" y="1260" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-46" edge="1" parent="1" source="PpiACjPOW8XVFr_PYozS-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="PpiACjPOW8XVFr_PYozS-29">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-23" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="Расшифровка: AES" vertex="1">
+          <mxGeometry height="40" width="120" x="800" y="1380" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-45" edge="1" parent="1" source="PpiACjPOW8XVFr_PYozS-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="PpiACjPOW8XVFr_PYozS-23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-25" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="Проверка подписи пакета" vertex="1">
+          <mxGeometry height="40" width="120" x="800" y="1440" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-27" edge="1" parent="1" source="PpiACjPOW8XVFr_PYozS-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;exitX=1;exitY=0.25;exitDx=0;exitDy=0;endArrow=none;endFill=0;startArrow=classic;startFill=1;" target="PpiACjPOW8XVFr_PYozS-31">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1020" y="1330" />
+              <mxPoint x="1020" y="1520" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-28" edge="1" parent="1" source="PpiACjPOW8XVFr_PYozS-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;dashed=1;dashPattern=8 8;endArrow=none;endFill=0;startArrow=classic;startFill=1;" target="PpiACjPOW8XVFr_PYozS-25">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="980" y="1350" />
+              <mxPoint x="980" y="1460" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-47" edge="1" parent="1" source="PpiACjPOW8XVFr_PYozS-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="PpiACjPOW8XVFr_PYozS-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-29" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Распаковка байтов: lzma" vertex="1">
+          <mxGeometry height="40" width="120" x="800" y="1320" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-43" edge="1" parent="1" source="PpiACjPOW8XVFr_PYozS-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="PpiACjPOW8XVFr_PYozS-25">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-31" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="Декодирование: Слова в байты: WordCoder" vertex="1">
+          <mxGeometry height="40" width="120" x="800" y="1500" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-42" edge="1" parent="1" source="PpiACjPOW8XVFr_PYozS-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="PpiACjPOW8XVFr_PYozS-31">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-33" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="Сырое сообщение из мессенджера" vertex="1">
+          <mxGeometry height="50" width="120" x="800" y="1560" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-41" edge="1" parent="1" source="PpiACjPOW8XVFr_PYozS-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="PpiACjPOW8XVFr_PYozS-33">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-35" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Модуль мессенджера" vertex="1">
+          <mxGeometry height="40" width="120" x="800" y="1630" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-40" edge="1" parent="1" source="PpiACjPOW8XVFr_PYozS-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="PpiACjPOW8XVFr_PYozS-35">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-36" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1" value="МЕССЕНДЖЕР" vertex="1">
+          <mxGeometry height="40" width="200" x="760" y="1710" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-37" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;b&gt;Во время инициализации:&lt;/b&gt;&lt;div&gt;&lt;br&gt;&lt;div&gt;1. Передача ключей шифрования&lt;/div&gt;&lt;div&gt;&lt;div&gt;2. Работа с подписями&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="80" width="210" x="1040" y="1360" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-38" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="1" vertex="1">
+          <mxGeometry height="20" width="20" x="960" y="1400" as="geometry" />
+        </mxCell>
+        <mxCell id="PpiACjPOW8XVFr_PYozS-39" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="2" vertex="1">
+          <mxGeometry height="20" width="20" x="1000" y="1400" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

@@ -54,12 +54,12 @@ class Packet:
     def from_bytes(cls, raw_bytes: bytes):
 
         # Получаем только заголовок, чтобы узнать длину данных
-        header_bytes = raw_bytes[:cls.HEADER_SIZE]
+        header_bytes = raw_bytes[:cls.TOTAL_SIZE]
         pack_type, chunk_count, stream_id, chunk_id, size = struct.unpack(cls.HEADER_FORMAT, header_bytes)
 
         # Получаем payload по size
         dynamic_format = f"{cls.HEADER_FORMAT}{size}s"
-        _, _, payload = struct.unpack(dynamic_format, raw_bytes)
+        _, _, _, _, _, payload = struct.unpack(dynamic_format, raw_bytes)
 
         return cls(pack_type, payload, chunk_count, stream_id, chunk_id)
 
@@ -67,7 +67,7 @@ class Packet:
 class PayloadPacket:
 
     HEADER_FORMAT = "!BH"
-    TOTAL_SIZE = struct.calcsize(FORMAT)
+    TOTAL_SIZE = struct.calcsize(HEADER_FORMAT)
 
     size = None
     pack_type = None
