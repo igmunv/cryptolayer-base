@@ -8,7 +8,7 @@ class Credential:
 
     def __init__(self, name, desc):
         self.name = name
-        self.desc = desc
+        self.description = desc
 
 
 class BaseModule:

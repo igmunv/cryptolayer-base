@@ -108,4 +108,4 @@ if len(words) != len(set(words)):
         f"Duplicates in DICT_WORDCODER_RU: {', '.join(sorted(set(duplicates)))}"
     )
 
-
+# Также сделать проверку чтобы не было слов длина которых больше 10 символов

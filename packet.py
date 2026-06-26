@@ -24,7 +24,7 @@ class Packet:
 
 
     HEADER_FORMAT = "!BHBHH"
-    TOTAL_SIZE = struct.calcsize(HEADER_FORMAT)
+    HEADER_SIZE = struct.calcsize(HEADER_FORMAT)
 
     size = None
     pack_type = None
@@ -54,7 +54,7 @@ class Packet:
     def from_bytes(cls, raw_bytes: bytes):
 
         # Получаем только заголовок, чтобы узнать длину данных
-        header_bytes = raw_bytes[:cls.TOTAL_SIZE]
+        header_bytes = raw_bytes[:cls.HEADER_SIZE]
         pack_type, chunk_count, stream_id, chunk_id, size = struct.unpack(cls.HEADER_FORMAT, header_bytes)
 
         # Получаем payload по size
@@ -67,7 +67,7 @@ class Packet:
 class PayloadPacket:
 
     HEADER_FORMAT = "!BH"
-    TOTAL_SIZE = struct.calcsize(HEADER_FORMAT)
+    HEADER_SIZE = struct.calcsize(HEADER_FORMAT)
 
     size = None
     pack_type = None

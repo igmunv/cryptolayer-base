@@ -14,11 +14,13 @@ from cryptography.hazmat.primitives import serialization
 
 import module_manager
 import sender
+import listener
 import packet
 
 from config import *
 
-session = PromptSession()
+
+pt_session = PromptSession()
 
 
 # Мессенджер
@@ -40,15 +42,15 @@ SIGN_PUBLIC_KEY = None
 AES_KEY = None
 
 
+LISTENER = None
+SENDER = None
 
 
 def main():
 
     init()
 
-    AES_KEY = os.urandom(32)
-    sndr = sender.Sender(AES_KEY, SIGN_PRIVATE_KEY, None)
-    sndr._send("Learning English effectively requires daily immersion and steady practice across all four core skills: listening, speaking, reading, and writing. The fastest path to fluency involves surrounding yourself with the language—consume native content, practice speaking out loud every day, and focus on practical, consistent routines rather than just memorizing grammar.Память: Требует много оперативной памяти. Важно учитывать, что распаковка файлов, сжатых на 22-м уровне, также потребует больше ОЗУ, чем при использовании низких уровней.".encode(), packet.PackTypes.COMMUNIC.value)
+    # sndr.send_comunic(packet.DataTypes.TEXT.value, "Learning English effectively requires daily immersion and steady practice across all four core skills: listening, speaking, reading, and writing. The fastest path to fluency involves surrounding yourself with the language—consume native content, practice speaking out loud every day, and focus on practical, consistent routines rather than just memorizing grammar.Память: Требует много оперативной памяти. Важно учитывать, что распаковка файлов, сжатых на 22-м уровне, также потребует больше ОЗУ, чем при использовании низких уровней.".encode())
 
 
     # listener_thread = threading.Thread(target=listener)
@@ -71,14 +73,31 @@ def init():
     # Чтение или генерация цифровой подписи данного узла
     generate_signature()
 
+
+    # - - РАБОТА С ПОДПИСЯМИ - -
+
+
     # Передача друг другу Node ID
+    print("SENDER.send_node_id(NODE_ID)")
+    SENDER.send_node_id(NODE_ID)
+
+    # Передача цифровой подписи
 
     # Проверка существования цифровой подписи собеседника
+
+    # Затем спрашиваем у пользователя доверяем ли этой подписи, показывая первые 4 символа, и последние
 
     # Ветвеление*
 
 
-    pass
+    # - - РАБОТА С КЛЮЧАМИ ШИФРОВАНИЯ - -
+
+
+    # Генерация публичного ключа
+
+    # Передача публичного ключа
+
+    # Вычисление симетричного ключа
 
 
 # Конфигурация мессенджера
@@ -86,13 +105,15 @@ def messenger_config():
 
     global COMPANION_ID
     global MESSENGER_CLASS
+    global LISTENER
+    global SENDER
 
     # Выбор мессенджера
     module_manager.load()
     print_formatted_text(HTML(f'<ansiyellow>All messengers:</ansiyellow>\n'))
     print_formatted_text(HTML(f'{module_manager.get_modules_string()}'))
     while True:
-        messenger_index = session.prompt(HTML(f'<ansiyellow>Choice messenger> </ansiyellow>')).strip()
+        messenger_index = pt_session.prompt(HTML(f'<ansiyellow>Choice messenger> </ansiyellow>')).strip()
         if not messenger_index.isdigit():
             error("Enter a number!")
             continue
@@ -104,7 +125,24 @@ def messenger_config():
         break
 
     # ID собеседника
-    COMPANION_ID = session.prompt(HTML('<ansiyellow>Companion ID> </ansiyellow>')).strip()
+    COMPANION_ID = pt_session.prompt(HTML('<ansiyellow>Companion ID> </ansiyellow>')).strip()
+
+    # Спрашиваем у пользователя Credentials
+    creds = []
+    print_formatted_text(HTML(f'<ansiyellow>Enter credentials:</ansiyellow>\n'))
+    for n, cred in enumerate(MESSENGER_CLASS.get_exp_creds()):
+        print_formatted_text(HTML(f"<ansiyellow>{n+1}. '{cred.name}' - {cred.description}</ansiyellow>\n"))
+        user_cred = pt_session.prompt(HTML(f'<ansiyellow>{cred.name}> </ansiyellow>')).strip()
+        creds.append(user_cred)
+
+    # Создание Listener
+    LISTENER = listener.Listener(0, 0, pt_session, ready_data_ingester)
+
+    # Создаем сессию в модуле мессенджера
+    MESSENGER_CLASS.create_session(creds, LISTENER.ingester, COMPANION_ID)
+
+    # Создание Sender
+    SENDER = sender.Sender(0, SIGN_PRIVATE_KEY, MESSENGER_CLASS.sender.send)
 
 
 # Генерация или получение ID узла
@@ -174,6 +212,42 @@ def generate_signature():
         f.write(pem_private_data)
 
 
+# Принимает готовые данные от Listener
+# а именно PayloadPacket
+def ready_data_ingester(pack_type, payload_packet: packet.PayloadPacket):
+
+    if pack_type == packet.PackTypes.SERVICE.value:
+
+        print(packet.CMDTypes(payload_packet.pack_type).name)
+        print(payload_packet.payload)
+
+        if payload_packet.pack_type == packet.CMDTypes.MY_NODE_ID:
+            pass
+
+        # если получили node_id и подпись, то DO_SIGN = True
+        # если получили public_key, то DO_ENCRYPT = True
+
+
+    elif pack_type == packet.PackTypes.COMMUNIC.value:
+
+        if payload_packet.pack_type == packet.DataTypes.TEXT.value:
+
+            with patch_stdout():
+                print_formatted_text(HTML(f'<ansiblue>peer:</ansiblue> {payload_packet.payload.decode()}'))
+
+        else:
+            print("Not TEXT data type:\n", payload_packet.payload)
+
+
+
+
+
+
+
+
+
+
+
 def sender1():
 
     while True:
@@ -207,7 +281,7 @@ def sender_console():
             error('Unknown command!')
 
 
-def listener():
+def listener1():
     msg = "Hello, how are you?"
     while True:
         with patch_stdout():

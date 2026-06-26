@@ -20,15 +20,15 @@ class Sender:
 
     aes_key = None
     private_key = None
-    module = None
+    module_send = None
 
     CURRENT_STREAM_ID = 0
 
 
-    def __init__(self, aes_key, private_key, module):
+    def __init__(self, aes_key, private_key, module_send):
         self.aes_key = aes_key
         self.private_key = private_key
-        self.module = module
+        self.module_send = module_send
 
     def update_aes_key(self, new_aes_key):
         self.aes_key = new_aes_key
@@ -106,13 +106,13 @@ class Sender:
         return encoded_packets
 
     def _send(self, raw_data, packet_type, do_encrypt=True, do_sign=True):
-
         ready_packets = self.data_preparation(raw_data, packet_type, do_encrypt=do_encrypt, do_sign=do_sign)
-        lstn = listener.Listener(self.aes_key, self.private_key.public_key())
-
-        for packet in ready_packets:
+        print("count: ", len(ready_packets))
+        for n, packet in enumerate(ready_packets):
             ready_text = " ".join(packet)
-            lstn.ingester(ready_text)
-            # module.Sender.send(ready_text)
+
+            print(n)
+            print(type(self.module_send))
+            self.module_send(ready_text)
             # time.sleep(config.DELAY)
-            pass
+            print()
