@@ -118,12 +118,16 @@ def init():
     remove_password_from_ram()
 
     SENDER.update_sign_private_key(SIGN_PRIVATE_KEY)
+    LISTENER.companion_public_key = COMPANION_SIGN # обновляем подпись собеседника
+    LISTENER.DO_SIGN = True # ОБЯЗАТЕЛЬНО!!! Так как теперь используется подпись
 
     # - - РАБОТА С КЛЮЧАМИ ШИФРОВАНИЯ - -
     print_formatted_text(HTML(f'\n - - ENCRYPTION KEYS - - \n'))
 
     # Генерация и обмен публичными ключами
     generate_and_exchange_ecc_keys()
+
+    # LISTENER.DO_ENCRYPT # Не забыть раскомментировать!
 
 
 # Конфигурация мессенджера

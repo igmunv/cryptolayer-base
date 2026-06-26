@@ -142,8 +142,6 @@ class Listener:
 
 
     def check_sign(self, signature, data: bytes) -> bool:
-        self.companion_public_key.verify(signature, data, ec.ECDSA(hashes.SHA256()))
-        return True # Подпись верна, сообщение подлинноеs
         try:
             self.companion_public_key.verify(signature, data, ec.ECDSA(hashes.SHA256()))
             return True # Подпись верна, сообщение подлинное
