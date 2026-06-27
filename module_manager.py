@@ -5,7 +5,7 @@ import inspect
 from base_module import BaseModule
 
 
-MESSENGER_DIR_NAME = "messengers"
+MODULES_DIR_NAME = "modules"
 
 
 MODULES = {}
@@ -15,19 +15,19 @@ def load():
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
-    modules_path = f"{current_dir}/{MESSENGER_DIR_NAME}"
+    modules_path = f"{current_dir}/{MODULES_DIR_NAME}"
     dirs = os.listdir(modules_path)
 
     module_dirs = []
 
     for dir in dirs:
-        if os.path.isdir(f"{current_dir}/{MESSENGER_DIR_NAME}/{dir}"):
+        if os.path.isdir(f"{current_dir}/{MODULES_DIR_NAME}/{dir}"):
             module_dirs.append(dir)
 
     for module_dir in module_dirs:
         try:
 
-            module = importlib.import_module(f"{MESSENGER_DIR_NAME}.{module_dir}.main")
+            module = importlib.import_module(f"{MODULES_DIR_NAME}.{module_dir}.main")
 
             for name, obj in inspect.getmembers(module, inspect.isclass):
                 if issubclass(obj, BaseModule) and obj is not BaseModule:

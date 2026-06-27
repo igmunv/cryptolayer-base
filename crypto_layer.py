@@ -175,7 +175,7 @@ def messenger_config():
             print_formatted_text(HTML(f"{n+1}/{len(all_module_creds)}. '{cred.name}' - {cred.description}"))
         else:
             print_formatted_text(HTML(f"'{cred.name}' - {cred.description}"))
-        user_cred = input(f'{cred.name}: {Fore.GREEN}').strip()
+        user_cred = getpass.getpass(f'{cred.name}: ').strip()
         print(ColoramaStyle.RESET_ALL, end="")
         print()
         creds.append(user_cred)
