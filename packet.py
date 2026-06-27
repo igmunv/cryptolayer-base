@@ -91,13 +91,17 @@ class PayloadPacket:
     @classmethod
     def from_bytes(cls, raw_bytes: bytes):
 
-        # Получаем только заголовок, чтобы узнать длину данных
-        header_bytes = raw_bytes[:cls.HEADER_SIZE]
-        pack_type, data_size = struct.unpack(cls.HEADER_FORMAT, header_bytes)
+        try:
+            # Получаем только заголовок, чтобы узнать длину данных
+            header_bytes = raw_bytes[:cls.HEADER_SIZE]
+            pack_type, data_size = struct.unpack(cls.HEADER_FORMAT, header_bytes)
 
-        # Получаем payload по data_size
-        dynamic_format = f"{cls.HEADER_FORMAT}{data_size}s"
-        _, _, payload = struct.unpack(dynamic_format, raw_bytes)
+            # Получаем payload по data_size
+            dynamic_format = f"{cls.HEADER_FORMAT}{data_size}s"
+            _, _, payload = struct.unpack(dynamic_format, raw_bytes)
 
-        return cls(pack_type, payload)
+            return cls(pack_type, payload)
+
+        except struct.error:
+            return None
 

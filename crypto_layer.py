@@ -272,14 +272,18 @@ def generate_signature(status):
 def node_id_exchange(status):
 
     status.update("[!] SIGNATURES: [yellow]Sending our node id. Starting the exchange of node id...[/yellow]")
-     # Передача друг другу Node ID
-    SENDER.send_node_id(NODE_ID)
 
+    # Передача друг другу Node ID
     # Ожидаем NODE ID собеседника
+    TIMER_NODE_ID_EXCHANGE = 5.0
     while not COMPANION_NODE_ID:
         status.update("[!] SIGNATURES: [yellow]Waiting for companion node id...[/yellow]")
         # !!!!!!!! нужно сделать так чтобы если долго не приходит то отправить заново свой и ждать. нужно сделать так везде во всех while
+        if TIMER_NODE_ID_EXCHANGE >= 5.0:
+            SENDER.send_node_id(NODE_ID)
+            TIMER_NODE_ID_EXCHANGE = 0.0
         time.sleep(0.1)
+        TIMER_NODE_ID_EXCHANGE += 0.1
 
     # print("COMPANION_NODE_ID", "=", COMPANION_NODE_ID)
 

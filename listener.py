@@ -43,7 +43,7 @@ class Listener:
 
     def __init__(self, aes_key, companion_public_key, session, ready_data_ingester):
         self.aes_key = aes_key
-        self.companion_public_key = companion_public_key
+        # self.companion_public_key = companion_public_key
         self.pt_session = session
         self.ready_data_ingester = ready_data_ingester
 
@@ -83,6 +83,9 @@ class Listener:
 
         # парсинг заголовка пакетаNone
         packet = pckt.Packet.from_bytes(raw_packet)
+
+        if not packet:
+            return
 
         # должны принять все чанки данного потока байтов
 
