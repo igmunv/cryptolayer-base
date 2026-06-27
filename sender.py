@@ -55,7 +55,6 @@ class Sender:
 
     def send_public_key(self, public_key: bytes):
         packet = pckt.PayloadPacket(pckt.CMDTypes.MY_PUBLIC_KEY.value, public_key).to_bytes()
-        # если отправлять с подписью, то ошибка, а если без, то нет ошибки!!!!
         self._send(packet, pckt.PackTypes.SERVICE.value, do_encrypt=False, do_sign=True)
 
     # Здесь происходит сжатие, шифрование, подпись, кодировка

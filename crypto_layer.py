@@ -8,6 +8,11 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
 from prompt_toolkit import HTML
 from prompt_toolkit import print_formatted_text
+from prompt_toolkit.styles import Style
+
+from colorama import Fore, Style as ColoramaStyle
+
+from rich.console import Console
 
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives import serialization, hashes
@@ -24,7 +29,7 @@ from config import *
 
 
 pt_session = PromptSession()
-
+console = Console()
 
 # Мессенджер
 MESSENGER_CLASS = None
@@ -88,6 +93,7 @@ def init():
 
     # Создаем директорию с данными
     os.makedirs(DATA_DIR_PATH, exist_ok=True)
+    os.makedirs(KNOWN_NODES_DIR_PATH, exist_ok=True)
 
     # Настройка мессенджера
     messenger_config()
@@ -96,38 +102,39 @@ def init():
     generate_node_id()
 
     # - - РАБОТА С ПОДПИСЯМИ - -
-    print_formatted_text(HTML(f'\n - - SIGNATURES - - \n'))
 
-    # Чтение или генерация цифровой подписи данного узла
-    generate_signature()
+    with console.status("[!] SIGNATURES: [yellow]Loading...[/yellow]") as status:
 
-    # Передача друг другу Node ID
-    SENDER.send_node_id(NODE_ID)
+        # Чтение или генерация цифровой подписи данного узла
+        generate_signature(status)
 
-    # Ожидаем NODE ID собеседника
-    while not COMPANION_NODE_ID:
-        time.sleep(0.1)
+        # Обмен ID узлов
+        node_id_exchange(status)
 
-    # print("COMPANION_NODE_ID", "=", COMPANION_NODE_ID)
+        # Проверка существования цифровой подписи собеседника
+        # Передача цифровой подписи
+        # Затем спрашиваем у пользователя доверяем ли этой подписи, показывая первые 4 символа, и последние
+        check_and_exchange_companion_sign(status)
 
-    # Проверка существования цифровой подписи собеседника
-    # Передача цифровой подписи
-    # Затем спрашиваем у пользователя доверяем ли этой подписи, показывая первые 4 символа, и последние
-    check_and_get_companion_sign()
+    console.print("[+] SIGNATURES: [green]Done[/green]")
 
+    # удалить пароль пользователя из памяти, так как он уже не нужен
     remove_password_from_ram()
 
-    SENDER.update_sign_private_key(SIGN_PRIVATE_KEY)
-    LISTENER.companion_public_key = COMPANION_SIGN # обновляем подпись собеседника
-    LISTENER.DO_SIGN = True # ОБЯЗАТЕЛЬНО!!! Так как теперь используется подпись
-
     # - - РАБОТА С КЛЮЧАМИ ШИФРОВАНИЯ - -
-    print_formatted_text(HTML(f'\n - - ENCRYPTION KEYS - - \n'))
 
-    # Генерация и обмен публичными ключами
-    generate_and_exchange_ecc_keys()
+    with console.status("[!] ENCRYPTION: [yellow]Loading...[/yellow]") as status:
 
-    # LISTENER.DO_ENCRYPT # Не забыть раскомментировать!
+        # Генерация и обмен публичными ключами ECC
+        generate_and_exchange_ecc_keys(status)
+
+    console.print("[+] ENCRYPTION: [green]Done[/green]")
+
+    # Может сделать отправку служебного сообщения, которое говорит о том что мы готовы к передаче. Это сообщение передается уже зашифрованым
+
+    # здесь мы уже можем отправлять сообщения
+    print_formatted_text(HTML(f'\n---------------------\n'))
+    sender_text_box()
 
 
 # Конфигурация мессенджера
@@ -140,10 +147,11 @@ def messenger_config():
 
     # Выбор мессенджера
     module_manager.load()
-    print_formatted_text(HTML(f'<ansiyellow>All messengers:</ansiyellow>\n'))
+    print_formatted_text(HTML(f'\n - - Modules (Messengers) - -'))
     print_formatted_text(HTML(f'{module_manager.get_modules_string()}'))
     while True:
-        messenger_index = pt_session.prompt(HTML(f'<ansiyellow>Choice messenger> </ansiyellow>')).strip()
+        messenger_index = input(f'Choice module: {Fore.GREEN}').strip()
+        print(ColoramaStyle.RESET_ALL, end="")
         if not messenger_index.isdigit():
             error("Enter a number!")
             continue
@@ -155,14 +163,21 @@ def messenger_config():
         break
 
     # ID собеседника
-    COMPANION_ID = pt_session.prompt(HTML('<ansiyellow>Companion ID> </ansiyellow>')).strip()
+    COMPANION_ID = input(f'Companion ID (in module): {Fore.GREEN}').strip()
+    print(ColoramaStyle.RESET_ALL, end="")
 
     # Спрашиваем у пользователя Credentials
     creds = []
-    print_formatted_text(HTML(f'<ansiyellow>Enter credentials:</ansiyellow>\n'))
-    for n, cred in enumerate(MESSENGER_CLASS.get_exp_creds()):
-        print_formatted_text(HTML(f"<ansiyellow>{n+1}. '{cred.name}' - {cred.description}</ansiyellow>\n"))
-        user_cred = pt_session.prompt(HTML(f'<ansiyellow>{cred.name}> </ansiyellow>')).strip()
+    print_formatted_text(HTML(f'\n - - Credentials - -\n'))
+    all_module_creds = MESSENGER_CLASS.get_exp_creds()
+    for n, cred in enumerate(all_module_creds):
+        if len(all_module_creds) > 1:
+            print_formatted_text(HTML(f"{n+1}/{len(all_module_creds)}. '{cred.name}' - {cred.description}"))
+        else:
+            print_formatted_text(HTML(f"'{cred.name}' - {cred.description}"))
+        user_cred = input(f'{cred.name}: {Fore.GREEN}').strip()
+        print(ColoramaStyle.RESET_ALL, end="")
+        print()
         creds.append(user_cred)
 
     # Создание Listener
@@ -201,17 +216,23 @@ def generate_node_id():
 
 
 # Генерация или получение цифровой подписи данного узла
-def generate_signature():
+def generate_signature(status):
 
     global SIGN_PRIVATE_KEY
     global SIGN_PUBLIC_KEY
 
+    # файл нашей подписи есть
     if os.path.exists(SIGN_PRIVATE_FILE_PATH):
+
+        status.update("[!] SIGNATURES: [yellow]Our signature file exists[/yellow]")
 
         with open(SIGN_PRIVATE_FILE_PATH, "rb") as f:
             loaded_pem_data = f.read()
 
+        # если файл не пустой
         if loaded_pem_data:
+
+            status.update("[!] SIGNATURES: [yellow]Signature file not empty. Use this signature[/yellow]")
 
             SIGN_PRIVATE_KEY = serialization.load_pem_private_key(
                 loaded_pem_data,
@@ -222,8 +243,12 @@ def generate_signature():
 
             return
 
+        else:
+            status.update("[!] SIGNATURES: [yellow]Signature file empty[/yellow]")
+
 
     # ... генерация
+    status.update("[!] SIGNATURES: [yellow]Generate new our signature...[/yellow]")
 
     SIGN_PRIVATE_KEY = ec.generate_private_key(ec.SECP256R1())
     SIGN_PUBLIC_KEY = SIGN_PRIVATE_KEY.public_key()
@@ -236,109 +261,156 @@ def generate_signature():
         encryption_algorithm=serialization.BestAvailableEncryption(bytes(USER_PASSWORD))
     )
 
+    status.update("[!] SIGNATURES: [yellow]Write new signature in file[/yellow]")
+
     # Записываем байты в файл
     with open(SIGN_PRIVATE_FILE_PATH, "wb") as f:
         f.write(pem_private_data)
 
 
-# Проверка существования цифровой подписи собеседника и ее получение
-def check_and_get_companion_sign():
+# Обмен ID узлов
+def node_id_exchange(status):
+
+    status.update("[!] SIGNATURES: [yellow]Sending our node id. Starting the exchange of node id...[/yellow]")
+     # Передача друг другу Node ID
+    SENDER.send_node_id(NODE_ID)
+
+    # Ожидаем NODE ID собеседника
+    while not COMPANION_NODE_ID:
+        status.update("[!] SIGNATURES: [yellow]Waiting for companion node id...[/yellow]")
+        time.sleep(0.1)
+
+    # print("COMPANION_NODE_ID", "=", COMPANION_NODE_ID)
+
+
+# Проверка существования цифровой подписи собеседника и обмен ею
+def check_and_exchange_companion_sign(status):
 
     global COMPANION_SIGN
 
-    COMPANION_SIGN_FILE_PATH = os.path.join(COMPANION_NODE_ID, KNOWN_NODES_DIR_PATH)
+    try:
 
-    # цифровая подпись существует
-    # достаем из файла и расшифровываем ее
-    if os.path.exists(COMPANION_SIGN_FILE_PATH):
+        COMPANION_SIGN_FILE_PATH = os.path.join(KNOWN_NODES_DIR_PATH, COMPANION_NODE_ID)
 
-        with open(COMPANION_SIGN_FILE_PATH, "rb") as f:
-            file_content = f.read()
+        # цифровая подпись существует
+        # достаем из файла и расшифровываем ее
+        if os.path.exists(COMPANION_SIGN_FILE_PATH):
 
-        salt = file_content[:16]
-        nonce = file_content[16:28]
-        encrypted_data = file_content[28:]
+            status.update("[!] SIGNATURES: [yellow]Сompanion signature exists[/yellow]")
 
-        hkdf = HKDF(
-            algorithm=hashes.SHA256(),
-            length=32,
-            salt=salt,
-            info=b"public-key-encryption",
-        )
-        up_aes_key = hkdf.derive(USER_PASSWORD)
+            # Чтение подписи собеседника из файла
+            status.update("[!] SIGNATURES: [yellow]Reading companion signature from file...[/yellow]")
 
-        aesgcm = AESGCM(up_aes_key)
-        pem_public_bytes = aesgcm.decrypt(nonce, encrypted_data, associated_data=None)
+            with open(COMPANION_SIGN_FILE_PATH, "rb") as f:
+                file_content = f.read()
 
-        loaded_public_key = serialization.load_pem_public_key(pem_public_bytes)
+            salt = file_content[:16]
+            nonce = file_content[16:28]
+            encrypted_data = file_content[28:]
 
-        # ждем, так как собеседник может отправить свою подпись
-        time.sleep(5)
+            hkdf = HKDF(
+                algorithm=hashes.SHA256(),
+                length=32,
+                salt=salt,
+                info=b"public-key-encryption",
+            )
+            up_aes_key = hkdf.derive(USER_PASSWORD)
 
-        # если собеседник не отправил свою подпись, то значит та которая в файле - актуальна
-        if not COMPANION_SIGN:
-            COMPANION_SIGN = loaded_public_key
-            return
+            aesgcm = AESGCM(up_aes_key)
+            pem_public_bytes = aesgcm.decrypt(nonce, encrypted_data, associated_data=None)
 
-        # если не существует то мы отправляем собеседнику свою подпись, а он в ответ должен отправить свою подпись.
-        # далее уже происходит проверка подписей
+            loaded_public_key = serialization.load_pem_public_key(pem_public_bytes)
 
-    else:
+            # ждем, так как собеседник может отправить свою подпись
+            status.update("[!] SIGNATURES: [yellow]Waiting to see if companion sends signature...[/yellow]")
+            time.sleep(5)
+
+            # если собеседник не отправил свою подпись, то значит та которая в файле - актуальна
+            if not COMPANION_SIGN:
+                COMPANION_SIGN = loaded_public_key
+                return
+
+            # если не существует то мы отправляем собеседнику свою подпись, а он в ответ должен отправить свою подпись.
+            # далее уже происходит проверка подписей
+        else:
+            status.update("[!] SIGNATURES: [yellow]Сompanion signature does not exists[/yellow]")
 
         sign_public_bytes_X962 = SIGN_PUBLIC_KEY.public_bytes(
             encoding=serialization.Encoding.X962,
             format=serialization.PublicFormat.CompressedPoint
         )
 
+        status.update("[!] SIGNATURES: [yellow]Sending our signature. Starting the exchange of signatures...[/yellow]")
+
         SENDER.send_sign(sign_public_bytes_X962)
 
-    # Если код продолжается, то значит что новая подпись пришла или же подписи просто нет в файле, и нужно получить новую подпись от собеседника и записать ее в файл
+        # Если код продолжается, то значит что новая подпись пришла или же подписи просто нет в файле, и нужно получить новую подпись от собеседника и записать ее в файл
 
-    while not COMPANION_SIGN:
-        print_formatted_text(HTML(f'<ansiyellow>Waiting companion signature...</ansiyellow>\n'))
-        time.sleep(5)
+        while not COMPANION_SIGN:
+            status.update("[!] SIGNATURES: [yellow]Waiting for companion signature...[/yellow]")
+            time.sleep(5)
+
+        status.stop()
+
+        # Вывод подписи пользователя
+        print_formatted_text(HTML(f'Your signature (show this to companion):\n| <ansiyellow>{get_firts_last_4_chars_sign(SIGN_PUBLIC_KEY)}</ansiyellow>\n'))
+        # Вывод подписи собеседника
+        print_formatted_text(HTML(f'Companion signature (сheck for correctness):\n| <ansiyellow>{get_firts_last_4_chars_sign(COMPANION_SIGN)}</ansiyellow>\n'))
+        # Проверка подписи собеседника пользователем
+        if answer(f"Is the companion signature correct?"):
+
+            print()
+            status.start()
+
+            # Доверяем, записываем, используем эту подпись
+
+            # Зашифровываем публичную подпись собеседника паролем
+
+            status.update("[!] SIGNATURES: [yellow]Save companion signature in file...[/yellow]")
+
+            pem_public_bytes = COMPANION_SIGN.public_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo
+            )
+
+            salt = os.urandom(16)
+            hkdf = HKDF(
+                algorithm=hashes.SHA256(),
+                length=32,
+                salt=salt,
+                info=b"public-key-encryption",
+            )
+            up_aes_key = hkdf.derive(USER_PASSWORD)
+
+            aesgcm = AESGCM(up_aes_key)
+            nonce = os.urandom(12)
+            encrypted_public_data = aesgcm.encrypt(nonce, pem_public_bytes, associated_data=None)
+
+            # В файл сохраняем уже зашифрованную подпись
+
+            with open(COMPANION_SIGN_FILE_PATH, "wb") as f:
+                f.write(salt + nonce + encrypted_public_data)
+
+        else:
+            print()
+            raise TypeError("do not trust the signature")
+
+    except Exception as e:
+        # ЭТО ВРЕМЕННО!
+        print(e)
+        raise Exception(e)
+
+    finally:
+        SENDER.update_sign_private_key(SIGN_PRIVATE_KEY)
+        LISTENER.companion_public_key = COMPANION_SIGN # обновляем подпись собеседника
+        LISTENER.DO_SIGN = True # ОБЯЗАТЕЛЬНО!!! Так как теперь используется подпись
 
 
-    # Вывод подписи пользователя
-    print_formatted_text(HTML(f'<ansiyellow>Your signature. Show this to companion:\n{get_firts_last_4_chars_sign(SIGN_PUBLIC_KEY)}</ansiyellow>\n'))
-    # Проверка подписи собеседника пользователем
-    if answer(f"Is the companion signature correct?\n{get_firts_last_4_chars_sign(COMPANION_SIGN)}"):
-
-        # Доверяем, записываем, используем эту подпись
-
-        # Зашифровываем публичную подпись собеседника паролем
-
-        pem_public_bytes = COMPANION_SIGN.public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo
-        )
-
-        salt = os.urandom(16)
-        hkdf = HKDF(
-            algorithm=hashes.SHA256(),
-            length=32,
-            salt=salt,
-            info=b"public-key-encryption",
-        )
-        up_aes_key = hkdf.derive(USER_PASSWORD)
-
-        aesgcm = AESGCM(up_aes_key)
-        nonce = os.urandom(12)
-        encrypted_public_data = aesgcm.encrypt(nonce, pem_public_bytes, associated_data=None)
-
-        # В файл сохраняем уже зашифрованную подпись
-
-        with open(COMPANION_SIGN_FILE_PATH, "wb") as f:
-            f.write(salt + nonce + encrypted_public_data)
-
-    else:
-        raise TypeError("do not trust the signature")
-
-
-# Генерация и обмен публичными ключами
-def generate_and_exchange_ecc_keys():
+# Генерация и обмен публичными ключами, вычисление симметриного ключа
+def generate_and_exchange_ecc_keys(status):
 
     # Генерация пары ключей
+    status.update("[!] ENCRYPTION: [yellow]Generate keys...[/yellow]")
     MY_PRIVATE_KEY = ec.generate_private_key(ec.SECP256R1())
     my_public_key = MY_PRIVATE_KEY.public_key()
     my_pkey_bytes = my_public_key.public_bytes(
@@ -347,17 +419,21 @@ def generate_and_exchange_ecc_keys():
         )
 
     # Передача публичного ключа
+    status.update("[!] SIGNATURES: [yellow]Sending public key. Starting the exchange of public keys...[/yellow]")
     SENDER.send_public_key(my_pkey_bytes)
 
     # Ожидаем публичный ключ от собеседника
     while not COMPANION_PUBLIC_KEY:
-        print_formatted_text(HTML(f'<ansiyellow>Waiting companion public key...</ansiyellow>\n'))
+        status.update("[!] ENCRYPTION: [yellow]Waiting for companion public key...[/yellow]")
         time.sleep(5)
 
-    print("okey")
-
     # Вычисление симетричного ключа
+    status.update("[!] ENCRYPTION: [yellow]Symmetric key computation...[/yellow]")
+    AES_KEY = MY_PRIVATE_KEY.exchange(ec.ECDH(), COMPANION_PUBLIC_KEY)
 
+    LISTENER.DO_ENCRYPT = True
+    SENDER.aes_key = AES_KEY
+    LISTENER.aes_key = AES_KEY
 
 
 # Принимает готовые данные от Listener
@@ -409,22 +485,19 @@ def remove_password_from_ram():
         USER_PASSWORD[i] = 0
 
 
-
-
-
-
-
-def sender1():
+def sender_text_box():
 
     while True:
 
         with patch_stdout():
-            user_input = session.prompt(HTML('<ansigreen>you></ansigreen> ')).strip()
+            user_input = pt_session.prompt(HTML('<ansigreen>you></ansigreen> ')).strip()
 
         if user_input == ":":
             if not answer("<ansired>You want send this?</ansired>"):
                 sender_console()
                 continue
+
+        SENDER.send_comunic(packet.DataTypes.TEXT.value, user_input.encode())
 
 
 # Это консоль для управления программой
@@ -434,7 +507,7 @@ def sender_console():
 
     while True:
 
-        user_input = session.prompt(HTML('<ansiyellow>CMD ></ansiyellow>')).strip()
+        user_input = pt_session.prompt(HTML('<ansiyellow>CMD ></ansiyellow>')).strip()
 
         if not user_input:
             continue
@@ -445,15 +518,6 @@ def sender_console():
             sys.exit(0)
         else:
             error('Unknown command!')
-
-
-def listener1():
-    msg = "Hello, how are you?"
-    while True:
-        with patch_stdout():
-            print_formatted_text(HTML('<ansiblue>peer:</ansiblue> Hello'))
-        time.sleep(5)
-
 
 
 def get_firts_last_4_chars_sign(sign):

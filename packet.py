@@ -57,8 +57,6 @@ class Packet:
         header_bytes = raw_bytes[:cls.HEADER_SIZE]
         pack_type, chunk_count, stream_id, chunk_id, size = struct.unpack(cls.HEADER_FORMAT, header_bytes)
 
-        print("from_bytes:", size, len(raw_bytes))
-
         # Получаем payload по size
         dynamic_format = f"{cls.HEADER_FORMAT}{size}s"
         _, _, _, _, _, payload = struct.unpack(dynamic_format, raw_bytes)

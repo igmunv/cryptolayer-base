@@ -65,6 +65,4 @@ class BaseModule:
 
 
     def get_exp_creds(self):
-
-        for exp_cred in self.expected_credentials:
-            yield exp_cred
+        return self.expected_credentials

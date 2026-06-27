@@ -6,7 +6,7 @@ class Test(BaseModule):
 
     name = "Test"
     description = "Virt Messenger for tests"
-    expected_credentials = [Credential("Token", "User Token")]
+    expected_credentials = [Credential("Token", "User Token"), Credential("Password", "User password")]
 
 
     class Sender:
