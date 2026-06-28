@@ -25,6 +25,9 @@ class Sender:
 
     CURRENT_STREAM_ID = 0
 
+    # !!!! сделать буффер куда кладут данные для отправки, а _send или что-то другое из второго потока берет из буффера и отправляет
+    PACKETS_BUFFER = []
+
 
     def __init__(self, aes_key, private_key, module_send):
         self.aes_key = aes_key
@@ -59,7 +62,7 @@ class Sender:
 
     # Здесь происходит сжатие, шифрование, подпись, кодировка
     # Возращаем уже готовый для отправки массив пакетов
-    def data_preparation(self, raw_data: bytes, packet_type, do_encrypt=True, do_sign=True):
+    def data_preparation(self, raw_data: bytes, packet_type, do_encrypt=True):
 
         # сжатие
         data = lzma.compress(raw_data)
@@ -75,32 +78,41 @@ class Sender:
         # разбиваем байты на чанки по config.CHUNK_SIZE байт
         chunks = [data[i:i + config.CHUNK_SIZE] for i in range(0, len(data), config.CHUNK_SIZE)]
 
-        encoded_packets = []
+        packets = []
 
         for n, chunk in enumerate(chunks):
-
-            packet = pckt.Packet(packet_type, chunk, len(chunks), self.CURRENT_STREAM_ID, n).to_bytes()
-
-            # подпись пакета
-            if do_sign:
-                signature = self.private_key.sign(
-                    packet,
-                    ec.ECDSA(hashes.SHA256())
-                )
-
-                # объединяем (подпись + пакет)
-                sig_len = len(signature).to_bytes(1, 'big')
-                packet = sig_len + signature + packet
-
-            # кодирование (ТОЛЬКО ПЕРЕД ОТПРАВКОЙ СООБЩЕНИЯ)
-            wc = wordcoder.WordCoder(config.DICT_WORDCODER_RU)
-            encoded_packet = wc.encode(packet)
-
-            encoded_packets.append(encoded_packet)
+            packet = pckt.Packet(packet_type, chunk, len(chunks), self.CURRENT_STREAM_ID, n)
+            packets.append(packet)
 
         self.CURRENT_STREAM_ID = (self.CURRENT_STREAM_ID + 1) % 256
 
-        return encoded_packets
+        return packets
+
+
+    # Подписывает пакет и WordCoder кодирует
+    def post_packet_preparation(self, packet: pckt.Packet, do_sign=True) -> str:
+
+        packet.update_time()
+
+        packet = packet.to_bytes()
+
+        if do_sign:
+            signature = self.private_key.sign(
+                packet,
+                ec.ECDSA(hashes.SHA256())
+            )
+
+            # объединяем (подпись + пакет)
+            sig_len = len(signature).to_bytes(1, 'big')
+            packet = sig_len + signature + packet
+
+        # кодирование (ТОЛЬКО ПЕРЕД ОТПРАВКОЙ СООБЩЕНИЯ)
+        wc = wordcoder.WordCoder(config.DICT_WORDCODER_RU)
+        encoded_packet = wc.encode(packet)
+
+        return encoded_packet
+
+
 
     def _send(self, raw_data, packet_type, do_encrypt=True, do_sign=True):
 
@@ -112,7 +124,11 @@ class Sender:
         #   также во время ожидания у нас есть флаг, который означает что мы не можем отправлять пакеты больше, КРОМЕ ПАКЕТОВ ПОДТВЕРЖДЕНИЯ, потому что во время ожидания собеседник может отправить что-либо, и мы должны получить и подтвердить что получили, поэтому флаг этот на отправку подтверждения не действует
         #
 
-        ready_packets = self.data_preparation(raw_data, packet_type, do_encrypt=do_encrypt, do_sign=do_sign)
+        ready_packets = self.data_preparation(raw_data, packet_type, do_encrypt=do_encrypt)
         for n, packet in enumerate(ready_packets):
-            ready_text = " ".join(packet)
+
+            word_array = self.post_packet_preparation(packet, do_sign=do_sign)
+            ready_text = " ".join(word_array)
             self.module_send(ready_text)
+
+            # хеш подготовить для ожидания подтверждения. так как в подтверждении придет хеш

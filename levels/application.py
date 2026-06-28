@@ -1,0 +1,75 @@
+import os
+
+from levels.packet import ApplicationPacket, PackTypes, DataTypes, CMDTypes
+
+from levels.base import Base
+
+
+class Application(Base):
+
+
+    def send_text(self, text: str):
+        packet = ApplicationPacket(PackTypes.COMMUNIC.value, DataTypes.TEXT.value, text.encode())
+        self.send(packet.to_bytes())
+
+
+    def send_my_node_id(self, node_id: str):
+        packet = ApplicationPacket(PackTypes.SERVICE.value, CMDTypes.MY_NODE_ID.value, node_id.encode())
+        self.send(packet.to_bytes())
+
+
+    def send_my_sign(self, sign: bytes):
+        packet = ApplicationPacket(PackTypes.SERVICE.value, CMDTypes.MY_SIGN.value, sign)
+        self.send(packet.to_bytes())
+
+
+    def send_my_public_key(self, public_key: bytes):
+        packet = ApplicationPacket(PackTypes.SERVICE.value, CMDTypes.MY_PUBLIC_KEY.value, public_key)
+        self.send(packet.to_bytes())
+
+
+    # постоянно читает данные из PENDING_PROCESSING_BUF и обрабатывает их и отправляет выше
+    def receiver(self):
+        while True:
+            if self.PENDING_PROCESSING_BUF:
+
+                data = self.PENDING_PROCESSING_BUF[0]
+
+                with self.PEND_PROC_BUF_LOCK:
+                    del self.PENDING_PROCESSING_BUF[0]
+
+
+                packet = ApplicationPacket.from_bytes(data)
+
+
+                if packet.pack_type == PackTypes.SERVICE.value:
+
+                    if packet.pack_type == CMDTypes.MY_NODE_ID.value:
+                        self.UPPER_LEVEL.receive_node_id(packet.payload.decode())
+
+                    if packet.pack_type == CMDTypes.MY_SIGN.value:
+                        self.UPPER_LEVEL.receive_sign(packet.payload)
+
+                    if packet.pack_type == CMDTypes.MY_PUBLIC_KEY.value:
+                        self.UPPER_LEVEL.receive_public_key(packet.payload)
+
+                elif pack_type == packet.PackTypes.COMMUNIC.value:
+
+                    if packet.pack_type == DataTypes.TEXT.value:
+                        self.UPPER_LEVEL.receive_text(packet.payload.decode())
+
+
+    # постоянно читает PENDING_SEND_BUF, формирует пакет и отправляет данные ниже
+    def sender(self):
+        while True:
+            if self.PENDING_SEND_BUF:
+
+                data = self.PENDING_SEND_BUF[0]
+
+                with self.PEND_SEND_BUF_LOCK:
+                    del self.PENDING_SEND_BUF[0]
+
+                self.LOWER_LEVEL.send(data)
+
+
+

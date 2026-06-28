@@ -71,15 +71,14 @@ USER_PASSWORD = None
 
 def main():
 
+    # перед всем должна быть инциализация уровней.
+    # init_levels()
+
     init()
 
-    # sndr.send_comunic(packet.DataTypes.TEXT.value, "Learning English effectively requires daily immersion and steady practice across all four core skills: listening, speaking, reading, and writing. The fastest path to fluency involves surrounding yourself with the language—consume native content, practice speaking out loud every day, and focus on practical, consistent routines rather than just memorizing grammar.Память: Требует много оперативной памяти. Важно учитывать, что распаковка файлов, сжатых на 22-м уровне, также потребует больше ОЗУ, чем при использовании низких уровней.".encode())
-
-
-    # listener_thread = threading.Thread(target=listener)
-    # listener_thread.start()
-    #
-    # sender()
+    # здесь мы уже можем отправлять сообщения
+    print_formatted_text(HTML(f'\n---------------------\n'))
+    sender_text_box()
 
 
 def init():
@@ -131,10 +130,6 @@ def init():
     console.print("[+] ENCRYPTION: [green]Done[/green]")
 
     # Может сделать отправку служебного сообщения, которое говорит о том что мы готовы к передаче. Это сообщение передается уже зашифрованым
-
-    # здесь мы уже можем отправлять сообщения
-    print_formatted_text(HTML(f'\n---------------------\n'))
-    sender_text_box()
 
 
 # Конфигурация мессенджера

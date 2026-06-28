@@ -1,4 +1,5 @@
 import threading
+import time
 
 import lzma
 
@@ -81,10 +82,16 @@ class Listener:
                 # может потом просто делать return при неправильной подписи
                 raise ValueError("sign error") # временно
 
-        # парсинг заголовка пакетаNone
+        # парсинг заголовка пакета
         packet = pckt.Packet.from_bytes(raw_packet)
 
         if not packet:
+            return
+
+        # Проверка на старость пакета
+        difference_seconds = int(time.time()) - packet.time
+        # Если пакет старше 5 минут, отбрасываем
+        if difference_seconds >= 300:
             return
 
         # должны принять все чанки данного потока байтов
