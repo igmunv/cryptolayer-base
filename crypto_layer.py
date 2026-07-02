@@ -381,6 +381,7 @@ def check_and_exchange_companion_sign(status):
             loaded_public_key = serialization.load_pem_public_key(pem_public_bytes)
 
             # ждем, так как собеседник может отправить свою подпись
+            # !!! нужно переделать. и сделать так что если чел отправил подпись, в любой момент, то мы ее применяем
             status.update("[!] SIGNATURES: [yellow]Waiting to see if companion sends signature...[/yellow]")
             time.sleep(5)
 
@@ -508,6 +509,7 @@ def receive_sign(sign: bytes):
         ec.SECP256R1(),
         sign
     )
+    # получаем подпись и тут же проверяем, обновляем и применяем ее
 
 
 def receive_public_key(public_key: bytes):

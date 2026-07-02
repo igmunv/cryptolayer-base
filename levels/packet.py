@@ -19,6 +19,8 @@ class CMDTypes(Enum):
     MY_NODE_ID = auto()
     MY_SIGN = auto()
     MY_PUBLIC_KEY = auto()
+    READY_USE_SIGN = auto() # готов использовать подписи. если оба получают, то используют
+    READY_USE_ENCRYPT = auto() # готов использовать криптографию. если оба получают, то используют
 
 
 # Пакет транспортного уровня
