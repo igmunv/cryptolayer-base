@@ -1,5 +1,7 @@
 from base_module import BaseModule, Credential
 
+import time
+
 
 class Test(BaseModule):
 
@@ -16,6 +18,7 @@ class Test(BaseModule):
 
         def send(self, text: str):
             # print(text)
+            time.sleep(1)
             self.listener.listen(text)
 
 

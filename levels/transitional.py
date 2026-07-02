@@ -3,6 +3,9 @@ import wordcoder
 import config
 import time
 
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives import hashes
+
 
 class Transitional(Base):
 
@@ -19,65 +22,49 @@ class Transitional(Base):
 
 
     # постоянно читает данные из PENDING_PROCESSING_BUF и обрабатывает их и отправляет выше
-    def receiver(self):
-        while True:
-            if self.PENDING_PROCESSING_BUF:
+    def rworker(self, data):
 
-                text = self.PENDING_PROCESSING_BUF[0]
+        # текст в массив
+        encoded_packet = data.split(" ")
 
-                with self.PEND_PROC_BUF_LOCK:
-                    del self.PENDING_PROCESSING_BUF[0]
+        # декодируем
+        wc = wordcoder.WordCoder(config.DICT_WORDCODER_RU)
+        raw_packet = wc.decode(encoded_packet)
 
-                # текст в массив
-                encoded_packet = text.split(" ")
+        if self.DO_SIGN:
 
-                # декодируем
-                wc = wordcoder.WordCoder(config.DICT_WORDCODER_RU)
-                raw_packet = wc.decode(encoded_packet)
+            # парсинг подписи
+            sig_len = raw_packet[0]
+            signature = bytes(raw_packet[1 : 1 + sig_len])
+            raw_packet = bytes(raw_packet[1 + sig_len :])
 
-                if self.DO_SIGN:
+            # проверить подпись
+            if not self.check_sign(signature, raw_packet):
+                # может потом просто делать return при неправильной подписи
+                raise ValueError("sign error") # временно
 
-                    # парсинг подписи
-                    sig_len = raw_packet[0]
-                    signature = bytes(raw_packet[1 : 1 + sig_len])
-                    raw_packet = bytes(raw_packet[1 + sig_len :])
+        self.UPPER_LEVEL.receive(raw_packet)
 
-                    # проверить подпись
-                    if not self.check_sign(signature, raw_packet):
-                        # может потом просто делать return при неправильной подписи
-                        raise ValueError("sign error") # временно
-
-                print("receiver", raw_packet)
-                self.UPPER_LEVEL.receive(raw_packet)
-            time.sleep(0.1)
 
     # постоянно читает PENDING_SEND_BUF, формирует пакет и отправляет данные ниже
-    def sender(self):
-        while True:
-            if self.PENDING_SEND_BUF:
+    def sworker(self, data):
 
-                data = self.PENDING_SEND_BUF[0]
+        if self.DO_SIGN:
+            signature = self.SIGN_PRIVATE_KEY.sign(
+                data,
+                ec.ECDSA(hashes.SHA256())
+            )
 
-                with self.PEND_SEND_BUF_LOCK:
-                    del self.PENDING_SEND_BUF[0]
+            # объединяем (подпись + пакет)
+            sig_len = len(signature).to_bytes(1, 'big')
+            data = sig_len + signature + data
 
-                if self.DO_SIGN:
-                    signature = self.SIGN_PRIVATE_KEY.sign(
-                        data,
-                        ec.ECDSA(hashes.SHA256())
-                    )
+        # кодирование (ТОЛЬКО ПЕРЕД ОТПРАВКОЙ СООБЩЕНИЯ)
+        wc = wordcoder.WordCoder(config.DICT_WORDCODER_RU)
+        word_array = wc.encode(data)
 
-                    # объединяем (подпись + пакет)
-                    sig_len = len(signature).to_bytes(1, 'big')
-                    data = sig_len + signature + data
-
-                # кодирование (ТОЛЬКО ПЕРЕД ОТПРАВКОЙ СООБЩЕНИЯ)
-                wc = wordcoder.WordCoder(config.DICT_WORDCODER_RU)
-                word_array = wc.encode(data)
-
-                ready_text = " ".join(word_array)
-                self.LOWER_LEVEL.send(ready_text)
-            time.sleep(0.1)
+        ready_text = " ".join(word_array)
+        self.LOWER_LEVEL.send(ready_text)
 
 
     def check_sign(self, signature, data: bytes) -> bool:

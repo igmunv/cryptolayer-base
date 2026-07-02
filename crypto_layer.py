@@ -3,6 +3,7 @@ import sys
 import time
 import os
 import uuid
+import logging
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
@@ -89,6 +90,8 @@ def init():
 
     global USER_PASSWORD
 
+    init_logger()
+
     # Спрашиваем пароль
     upass = getpass.getpass("Your password: ")
     USER_PASSWORD = bytearray(upass.encode('utf-8'))
@@ -137,6 +140,33 @@ def init():
     console.print("[+] ENCRYPTION: [green]Done[/green]")
 
     # Может сделать отправку служебного сообщения, которое говорит о том что мы готовы к передаче. Это сообщение передается уже зашифрованым
+
+
+def init_logger():
+
+    log_format = logging.Formatter(
+        "[%(asctime)s] [%(levelname)s] [%(name)s -> %(funcName)s] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    root_logger.handlers.clear()
+
+    # вывод логов в файл
+    if LOGS_TO_FILE:
+        file_handler = logging.FileHandler(
+            LOGS_FILE_PATH, encoding="utf-8", mode="w"
+        )
+        file_handler.setFormatter(log_format)
+        root_logger.addHandler(file_handler)
+
+    # вывод логов в терминал
+    if PRINT_LOGS:
+        terminal_handler = logging.StreamHandler(sys.stdout)
+        terminal_handler.setFormatter(log_format)
+        root_logger.addHandler(terminal_handler)
+
 
 
 def init_levels():
@@ -467,26 +497,29 @@ def generate_and_exchange_ecc_keys(status):
 
 
 def receive_node_id(node_id: str):
-    COMPANION_NODE_ID = payload_packet.payload.decode()
+    global COMPANION_NODE_ID
+    COMPANION_NODE_ID = node_id
 
 
 def receive_sign(sign: bytes):
+    global COMPANION_SIGN
     COMPANION_SIGN = ec.EllipticCurvePublicKey.from_encoded_point(
         ec.SECP256R1(),
-        payload_packet.payload
+        sign
     )
 
 
 def receive_public_key(public_key: bytes):
+    global COMPANION_PUBLIC_KEY
     COMPANION_PUBLIC_KEY = ec.EllipticCurvePublicKey.from_encoded_point(
         ec.SECP256R1(),
-        payload_packet.payload
+        public_key
     )
 
 
 def receive_text(text: str):
     with patch_stdout():
-        print_formatted_text(HTML(f'<ansiblue>peer:</ansiblue> {payload_packet.payload.decode()}'))
+        print_formatted_text(HTML(f'<ansiblue>peer:</ansiblue> {text}'))
 
 
 

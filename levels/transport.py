@@ -39,7 +39,7 @@ class Transport(Base):
         hasher.update(rec_raw_packet_bytes)
         packet_hash = hasher.hexdigest()
 
-        packet = TransportPacket(0x1, 0, 0, 0, time.time(), packet_hash.encode())
+        packet = TransportPacket(0x1, 0, 0, 0, int(time.time()), packet_hash.encode())
         raw_packet_bytes = packet.to_bytes()
         self.LOWER_LEVEL.send(raw_packet_bytes)
 
@@ -65,77 +65,63 @@ class Transport(Base):
 
 
     # постоянно читает данные из PENDING_PROCESSING_BUF и обрабатывает их и отправляет выше
-    def receiver(self):
-        while True:
-            if self.PENDING_PROCESSING_BUF:
+    def rworker(self, data):
 
-                raw_packet_bytes = self.PENDING_PROCESSING_BUF[0]
+        packet = TransportPacket.from_bytes(data)
 
-                with self.PEND_PROC_BUF_LOCK:
-                    del self.PENDING_PROCESSING_BUF[0]
+        if not packet:
+            return
 
-                packet = TransportPacket.from_bytes(raw_packet_bytes)
+        # Проверка на возраст пакета
+        difference_seconds = int(time.time()) - packet.time
+        # Если пакет старше 5 минут, отбрасываем
+        if difference_seconds >= 300:
+            return
 
-                if not packet:
-                    continue
+        # Если это пакет подтверждения
+        if packet.flags == 0x1:
+            packet_hash = packet.payload.decode()
+            with self.PENDING_ACK_PACKS_LOCK:
+                self.PENDING_ACK_PACKS.pop(packet_hash, None)
 
-                # Проверка на возраст пакета
-                difference_seconds = int(time.time()) - packet.time
-                # Если пакет старше 5 минут, отбрасываем
-                if difference_seconds >= 300:
-                    continue
+        # Если просто пакет передачи данных
+        if packet.flags == 0x0:
 
-                # Если это пакет подтверждения
-                if packet.flags == 0x1:
-                    packet_hash = packet.payload.decode()
-                    with self.PENDING_ACK_PACKS_LOCK:
-                        self.PENDING_ACK_PACKS.pop(packet_hash, None)
+            if packet.stream_id not in self.WAITING_STREAMS:
+                self.WAITING_STREAMS[packet.stream_id] = {"count": packet.chunk_count, "packets": []}
+            self.WAITING_STREAMS[packet.stream_id]["packets"].append({"chunk_id": packet.chunk_id, "payload": packet.payload})
 
-                # Если просто пакет передачи данных
-                if packet.flags == 0x0:
+            # Отправка подтверждения о получении пакета
+            self.send_acknowledgment(data)
 
-                    if packet.stream_id not in self.WAITING_STREAMS:
-                        self.WAITING_STREAMS[packet.stream_id] = {"count": packet.chunk_count, "packets": []}
-                    self.WAITING_STREAMS[packet.stream_id]["packets"].append({"chunk_id": packet.chunk_id, "payload": packet.payload})
+            if self.WAITING_STREAMS[packet.stream_id]["count"] == len(self.WAITING_STREAMS[packet.stream_id]["packets"]):
 
-                    if self.WAITING_STREAMS[packet.stream_id]["count"] == len(self.WAITING_STREAMS[packet.stream_id]["packets"]):
+                sorted_packets = sorted(self.WAITING_STREAMS[packet.stream_id]["packets"], key=lambda x: x["chunk_id"])
+                data = bytes()
+                for _packet in sorted_packets:
+                    data += _packet['payload']
 
-                        sorted_packets = sorted(self.WAITING_STREAMS[packet.stream_id]["packets"], key=lambda x: x["chunk_id"])
-                        data = bytes()
-                        for _packet in sorted_packets:
-                            data += _packet['payload']
+                # Передаем выше
+                self.UPPER_LEVEL.receive(data)
 
-                        # Передаем выше
-                        self.UPPER_LEVEL.receive(data)
-
-            time.sleep(0.1)
 
     # постоянно читает PENDING_SEND_BUF, формирует пакет и отправляет данные ниже
-    def sender(self):
-        while True:
-            if self.PENDING_SEND_BUF:
+    def sworker(self, data):
 
-                data = self.PENDING_SEND_BUF[0]
+        chunks = [data[i:i + self.CHUNK_SIZE] for i in range(0, len(data), self.CHUNK_SIZE)]
 
-                with self.PEND_SEND_BUF_LOCK:
-                    del self.PENDING_SEND_BUF[0]
+        for n, chunk in enumerate(chunks):
 
-                chunks = [data[i:i + self.CHUNK_SIZE] for i in range(0, len(data), self.CHUNK_SIZE)]
+            packet = TransportPacket(0x0, self.CURRENT_STREAM_ID, len(chunks), n, int(time.time()), chunk)
+            raw_packet_bytes = packet.to_bytes()
 
-                for n, chunk in enumerate(chunks):
+            hasher = hashlib.sha256()
+            hasher.update(raw_packet_bytes)
+            packet_hash = hasher.hexdigest()
 
-                    packet = TransportPacket(0x0, self.CURRENT_STREAM_ID, len(chunks), n, int(time.time()), chunk)
-                    raw_packet_bytes = packet.to_bytes()
+            self.send_with_pending_acknowledgment(raw_packet_bytes, packet_hash)
 
-                    hasher = hashlib.sha256()
-                    hasher.update(raw_packet_bytes)
-                    packet_hash = hasher.hexdigest()
-
-                    self.send_with_pending_acknowledgment(raw_packet_bytes, packet_hash)
-
-                self.CURRENT_STREAM_ID = (self.CURRENT_STREAM_ID + 1) % 256
-
-            time.sleep(0.1)
+        self.CURRENT_STREAM_ID = (self.CURRENT_STREAM_ID + 1) % 256
 
 
 

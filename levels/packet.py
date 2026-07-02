@@ -52,7 +52,7 @@ class TransportPacket:
         # Динамически упаковывает payload любой длины
         dynamic_format = f"{self.HEADER_FORMAT}{self.size}s"
         # Формируем и возвращаем пакет
-        return struct.pack(dynamic_format, self.flags, self.stream_id, self.chunk_count, self.chunk_id, self.time, self.size, self.payload)
+        return struct.pack(dynamic_format, self.flags, self.stream_id, self.chunk_count, self.chunk_id, int(self.time), self.size, self.payload)
 
 
     # Десериализация пакета из байтов в класс
@@ -67,7 +67,7 @@ class TransportPacket:
         dynamic_format = f"{cls.HEADER_FORMAT}{size}s"
         _, _, _, _, _, _, payload = struct.unpack(dynamic_format, raw_bytes)
 
-        return cls(flags, stream_id, chunk_count, chunk_id, payload, time)
+        return cls(flags, stream_id, chunk_count, chunk_id, time, payload)
 
 
 # Пакет транспортного уровня
@@ -104,7 +104,6 @@ class ApplicationPacket:
 
         # Получаем только заголовок, чтобы узнать длину данных
         header_bytes = raw_bytes[:cls.HEADER_SIZE]
-        print("from_bytes:", cls.HEADER_FORMAT, header_bytes)
         pack_type, data_type, size = struct.unpack(cls.HEADER_FORMAT, header_bytes)
 
         # Получаем payload по size

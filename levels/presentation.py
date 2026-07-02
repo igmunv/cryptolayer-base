@@ -16,56 +16,37 @@ class Presentation(Base):
 
 
     # постоянно читает данные из PENDING_PROCESSING_BUF и обрабатывает их и отправляет выше
-    def receiver(self):
-        while True:
-            if self.PENDING_PROCESSING_BUF:
+    def rworker(self, data):
+        if self.DO_ENCRYPT:
 
-                data = self.PENDING_PROCESSING_BUF[0]
+            nonce = data[:12]
+            encrypted_data = data[12:]
 
-                with self.PEND_PROC_BUF_LOCK:
-                    del self.PENDING_PROCESSING_BUF[0]
+            aesgcm = AESGCM(self.AES_KEY)
 
-                if self.DO_ENCRYPT:
+            try:
+                data = aesgcm.decrypt(nonce, encrypted_data, associated_data=None)
+            except Exception as e:
+                print("Ошибка дешифрования! Возможно, данные были изменены.")
+                return
 
-                    nonce = data[:12]
-                    encrypted_data = data[12:]
+        data = lzma.decompress(data)
 
-                    aesgcm = AESGCM(self.AES_KEY)
-
-                    try:
-                        data = aesgcm.decrypt(nonce, encrypted_data, associated_data=None)
-                    except Exception as e:
-                        print("Ошибка дешифрования! Возможно, данные были изменены.")
-                        continue
-
-                print("presentation",data, type(data))
-                data = lzma.decompress(data)
-
-                self.UPPER_LEVEL.receive(data)
-            time.sleep(0.1)
+        self.UPPER_LEVEL.receive(data)
 
 
     # постоянно читает PENDING_SEND_BUF, формирует пакет и отправляет данные ниже
-    def sender(self):
-        while True:
-            if self.PENDING_SEND_BUF:
+    def sworker(self, data):
 
-                data = self.PENDING_SEND_BUF[0]
+        # сжатие
+        data = lzma.compress(data)
 
-                with self.PEND_SEND_BUF_LOCK:
-                    del self.PENDING_SEND_BUF[0]
+        # шифрование
+        if self.DO_ENCRYPT:
+            aesgcm = AESGCM(self.AES_KEY)
+            nonce = os.urandom(12)
+            encrypted_data = aesgcm.encrypt(nonce, data, associated_data=None)
+            data = nonce + encrypted_data
 
-                # сжатие
-                data = lzma.compress(data)
-
-                # шифрование
-                if self.DO_ENCRYPT:
-                    aesgcm = AESGCM(self.AES_KEY)
-                    nonce = os.urandom(12)
-                    encrypted_data = aesgcm.encrypt(nonce, data, associated_data=None)
-                    data = nonce + encrypted_data
-
-                self.LOWER_LEVEL.send(data)
-
-            time.sleep(0.1)
+        self.LOWER_LEVEL.send(data)
 

@@ -30,47 +30,29 @@ class Application(Base):
 
 
     # постоянно читает данные из PENDING_PROCESSING_BUF и обрабатывает их и отправляет выше
-    def receiver(self):
-        while True:
-            if self.PENDING_PROCESSING_BUF:
+    def rworker(self, data):
 
-                data = self.PENDING_PROCESSING_BUF[0]
+        packet = ApplicationPacket.from_bytes(data)
 
-                with self.PEND_PROC_BUF_LOCK:
-                    del self.PENDING_PROCESSING_BUF[0]
+        if packet.pack_type == PackTypes.SERVICE.value:
 
-                print("application receiver",data, type(data))
-                packet = ApplicationPacket.from_bytes(data)
+            if packet.data_type == CMDTypes.MY_NODE_ID.value:
+                self.UPPER_LEVEL.receive_node_id(packet.payload.decode())
 
+            if packet.data_type == CMDTypes.MY_SIGN.value:
+                self.UPPER_LEVEL.receive_sign(packet.payload)
 
-                if packet.pack_type == PackTypes.SERVICE.value:
+            if packet.data_type == CMDTypes.MY_PUBLIC_KEY.value:
+                self.UPPER_LEVEL.receive_public_key(packet.payload)
 
-                    if packet.pack_type == CMDTypes.MY_NODE_ID.value:
-                        self.UPPER_LEVEL.receive_node_id(packet.payload.decode())
+        elif packet.pack_type == PackTypes.COMMUNIC.value:
 
-                    if packet.pack_type == CMDTypes.MY_SIGN.value:
-                        self.UPPER_LEVEL.receive_sign(packet.payload)
+            if packet.data_type == DataTypes.TEXT.value:
+                self.UPPER_LEVEL.receive_text(packet.payload.decode())
 
-                    if packet.pack_type == CMDTypes.MY_PUBLIC_KEY.value:
-                        self.UPPER_LEVEL.receive_public_key(packet.payload)
-
-                elif pack_type == packet.PackTypes.COMMUNIC.value:
-
-                    if packet.pack_type == DataTypes.TEXT.value:
-                        self.UPPER_LEVEL.receive_text(packet.payload.decode())
-            time.sleep(0.1)
 
     # постоянно читает PENDING_SEND_BUF, формирует пакет и отправляет данные ниже
-    def sender(self):
-        while True:
-            if self.PENDING_SEND_BUF:
-
-                data = self.PENDING_SEND_BUF[0]
-
-                with self.PEND_SEND_BUF_LOCK:
-                    del self.PENDING_SEND_BUF[0]
-
-                self.LOWER_LEVEL.send(data)
-            time.sleep(0.1)
+    def sworker(self, data):
+        self.LOWER_LEVEL.send(data)
 
 

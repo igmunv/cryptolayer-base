@@ -17,13 +17,20 @@ NODE_ID_FILE_PATH = os.path.join(DATA_DIR_PATH, NODE_ID_FILE_NAME)
 SIGN_PRIVATE_FILE_NAME = "sign_private"
 SIGN_PRIVATE_FILE_PATH = os.path.join(DATA_DIR_PATH, SIGN_PRIVATE_FILE_NAME)
 
+LOGS_FILE_NAME = "crypto_layer.log"
+LOGS_FILE_PATH = os.path.join(DATA_DIR_PATH, LOGS_FILE_NAME)
+
 
 CHUNK_SIZE = 100
 
 DELAY = 1
 
+PRINT_LOGS = True
+LOGS_TO_FILE = True
+
 
 # НЕ ДОЛЖНО БЫТЬ ОДИНАКОВЫХ СЛОВ. НАДО СДЕЛАТЬ ПРОВЕРКУ
+# в отдельный файл
 DICT_WORDCODER_RU = {
     0x00: "ад", 0x01: "аз", 0x02: "ай", 0x03: "ар",
     0x04: "ас", 0x05: "ах", 0x06: "бз", 0x07: "би",
