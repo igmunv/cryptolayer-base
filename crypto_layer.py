@@ -90,8 +90,6 @@ def init():
 
     global USER_PASSWORD
 
-    init_logger()
-
     # Спрашиваем пароль
     upass = getpass.getpass("Your password: ")
     USER_PASSWORD = bytearray(upass.encode('utf-8'))
@@ -100,6 +98,9 @@ def init():
     # Создаем директорию с данными
     os.makedirs(DATA_DIR_PATH, exist_ok=True)
     os.makedirs(KNOWN_NODES_DIR_PATH, exist_ok=True)
+
+    # инциализация логера
+    init_logger()
 
     # инциализация уровней
     init_levels()

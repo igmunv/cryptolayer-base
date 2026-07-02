@@ -25,8 +25,8 @@ CHUNK_SIZE = 100
 
 DELAY = 1
 
-PRINT_LOGS = True
-LOGS_TO_FILE = True
+PRINT_LOGS = False
+LOGS_TO_FILE = False
 
 
 # НЕ ДОЛЖНО БЫТЬ ОДИНАКОВЫХ СЛОВ. НАДО СДЕЛАТЬ ПРОВЕРКУ
