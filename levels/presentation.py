@@ -1,4 +1,5 @@
 import os
+import time
 
 import lzma
 
@@ -37,9 +38,11 @@ class Presentation(Base):
                         print("Ошибка дешифрования! Возможно, данные были изменены.")
                         continue
 
+                print("presentation",data, type(data))
                 data = lzma.decompress(data)
 
                 self.UPPER_LEVEL.receive(data)
+            time.sleep(0.1)
 
 
     # постоянно читает PENDING_SEND_BUF, формирует пакет и отправляет данные ниже
@@ -53,7 +56,7 @@ class Presentation(Base):
                     del self.PENDING_SEND_BUF[0]
 
                 # сжатие
-                data = lzma.compress(raw_data)
+                data = lzma.compress(data)
 
                 # шифрование
                 if self.DO_ENCRYPT:
@@ -64,5 +67,5 @@ class Presentation(Base):
 
                 self.LOWER_LEVEL.send(data)
 
-
+            time.sleep(0.1)
 

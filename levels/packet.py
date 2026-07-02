@@ -104,6 +104,7 @@ class ApplicationPacket:
 
         # Получаем только заголовок, чтобы узнать длину данных
         header_bytes = raw_bytes[:cls.HEADER_SIZE]
+        print("from_bytes:", cls.HEADER_FORMAT, header_bytes)
         pack_type, data_type, size = struct.unpack(cls.HEADER_FORMAT, header_bytes)
 
         # Получаем payload по size

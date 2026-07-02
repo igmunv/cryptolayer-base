@@ -89,7 +89,7 @@ class Transport(Base):
                 if packet.flags == 0x1:
                     packet_hash = packet.payload.decode()
                     with self.PENDING_ACK_PACKS_LOCK:
-                        PENDING_ACK_PACKS.pop(packet_hash, None)
+                        self.PENDING_ACK_PACKS.pop(packet_hash, None)
 
                 # Если просто пакет передачи данных
                 if packet.flags == 0x0:
@@ -108,6 +108,7 @@ class Transport(Base):
                         # Передаем выше
                         self.UPPER_LEVEL.receive(data)
 
+            time.sleep(0.1)
 
     # постоянно читает PENDING_SEND_BUF, формирует пакет и отправляет данные ниже
     def sender(self):
@@ -133,6 +134,8 @@ class Transport(Base):
                     self.send_with_pending_acknowledgment(raw_packet_bytes, packet_hash)
 
                 self.CURRENT_STREAM_ID = (self.CURRENT_STREAM_ID + 1) % 256
+
+            time.sleep(0.1)
 
 
 

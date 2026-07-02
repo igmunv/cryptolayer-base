@@ -1,6 +1,6 @@
 <mxfile host="Electron">
   <diagram name="Page-1" id="zEX1-Cbp2asFqXu51f78">
-    <mxGraphModel dx="1867" dy="1156" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1077" dy="667" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -510,8 +510,8 @@
         <mxCell id="eo51WXHSP3mHvzmIa87W-54" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontStyle=1" value="Одна Библиотека" vertex="1">
           <mxGeometry height="30" width="110" x="1590" y="1690" as="geometry" />
         </mxCell>
-        <mxCell id="eo51WXHSP3mHvzmIa87W-56" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontStyle=1" value="У КАЖДОГО УРОВНЯ СВОЙ HEADER!!!" vertex="1">
-          <mxGeometry height="30" width="150" x="2190" y="1840" as="geometry" />
+        <mxCell id="eo51WXHSP3mHvzmIa87W-56" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontStyle=1" value="нет так не получится. так как нету там cmd команд и т.д&lt;br&gt;&lt;br&gt;поэтому настройка и управление уровнями лежит на crypto_layer.py" vertex="1">
+          <mxGeometry height="342.5" width="320" x="1240" y="1697.5" as="geometry" />
         </mxCell>
         <mxCell id="eo51WXHSP3mHvzmIa87W-59" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Флаги" vertex="1">
           <mxGeometry height="40" width="120" x="740" y="235" as="geometry" />

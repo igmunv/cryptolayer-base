@@ -59,7 +59,6 @@ class BaseModule:
 
 
     def create_session(self, credentials, ingester: callable, user_id):
-
         self.sender = self.Sender(credentials, user_id)
         self.listener = self.Listener(credentials, ingester, user_id)
 

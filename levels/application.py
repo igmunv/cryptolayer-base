@@ -1,4 +1,5 @@
 import os
+import time
 
 from levels.packet import ApplicationPacket, PackTypes, DataTypes, CMDTypes
 
@@ -38,7 +39,7 @@ class Application(Base):
                 with self.PEND_PROC_BUF_LOCK:
                     del self.PENDING_PROCESSING_BUF[0]
 
-
+                print("application receiver",data, type(data))
                 packet = ApplicationPacket.from_bytes(data)
 
 
@@ -57,7 +58,7 @@ class Application(Base):
 
                     if packet.pack_type == DataTypes.TEXT.value:
                         self.UPPER_LEVEL.receive_text(packet.payload.decode())
-
+            time.sleep(0.1)
 
     # постоянно читает PENDING_SEND_BUF, формирует пакет и отправляет данные ниже
     def sender(self):
@@ -70,6 +71,6 @@ class Application(Base):
                     del self.PENDING_SEND_BUF[0]
 
                 self.LOWER_LEVEL.send(data)
-
+            time.sleep(0.1)
 
 

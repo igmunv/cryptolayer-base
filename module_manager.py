@@ -20,22 +20,20 @@ def load():
 
     module_dirs = []
 
-    for dir in dirs:
-        if os.path.isdir(f"{current_dir}/{MODULES_DIR_NAME}/{dir}"):
-            module_dirs.append(dir)
+    for _dir in dirs:
+        if os.path.isdir(f"{current_dir}/{MODULES_DIR_NAME}/{_dir}"):
+            module_dirs.append(_dir)
 
     for module_dir in module_dirs:
         try:
-
             module = importlib.import_module(f"{MODULES_DIR_NAME}.{module_dir}.main")
-
             for name, obj in inspect.getmembers(module, inspect.isclass):
                 if issubclass(obj, BaseModule) and obj is not BaseModule:
 
                     main_class = obj()
                     MODULES[len(MODULES)+1] = main_class
 
-        except ModuleNotFoundError:
+        except ModuleNotFoundError as e:
             pass
 
 

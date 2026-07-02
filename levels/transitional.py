@@ -1,6 +1,7 @@
 from levels.base import Base
 import wordcoder
 import config
+import time
 
 
 class Transitional(Base):
@@ -9,7 +10,12 @@ class Transitional(Base):
     DO_SIGN = False
     SIGN_PRIVATE_KEY = None
     COMPANION_SIGN_PUBLIC_KEY = None
-    MODULE_SEND = None
+
+    # Класс-Уровень выше
+    UPPER_LEVEL = None
+
+    # Класс-Уровень ниже
+    LOWER_LEVEL = None
 
 
     # постоянно читает данные из PENDING_PROCESSING_BUF и обрабатывает их и отправляет выше
@@ -41,8 +47,9 @@ class Transitional(Base):
                         # может потом просто делать return при неправильной подписи
                         raise ValueError("sign error") # временно
 
+                print("receiver", raw_packet)
                 self.UPPER_LEVEL.receive(raw_packet)
-
+            time.sleep(0.1)
 
     # постоянно читает PENDING_SEND_BUF, формирует пакет и отправляет данные ниже
     def sender(self):
@@ -54,7 +61,7 @@ class Transitional(Base):
                 with self.PEND_SEND_BUF_LOCK:
                     del self.PENDING_SEND_BUF[0]
 
-                if DO_SIGN:
+                if self.DO_SIGN:
                     signature = self.SIGN_PRIVATE_KEY.sign(
                         data,
                         ec.ECDSA(hashes.SHA256())
@@ -69,7 +76,8 @@ class Transitional(Base):
                 word_array = wc.encode(data)
 
                 ready_text = " ".join(word_array)
-                self.MODULE_SEND(ready_text)
+                self.LOWER_LEVEL.send(ready_text)
+            time.sleep(0.1)
 
 
     def check_sign(self, signature, data: bytes) -> bool:

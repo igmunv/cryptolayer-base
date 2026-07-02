@@ -28,6 +28,12 @@ class Base:
         threading.Thread(target=self.receiver).start()
 
 
+    # Обновить уровни: нижестоящий и вышестоящий
+    def update_levels(self, upper_level, lower_level):
+        self.UPPER_LEVEL = upper_level
+        self.LOWER_LEVEL = lower_level
+
+
     # PUBLIC фунция: её вызывает верхний уровень: отправь эти данные
     def send(self, data):
         with self.PEND_SEND_BUF_LOCK:

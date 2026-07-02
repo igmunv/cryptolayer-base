@@ -20,10 +20,12 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
 import module_manager
-import sender
-import listener
-import packet
 import getpass
+
+from levels.application import Application
+from levels.presentation import Presentation
+from levels.transport import Transport
+from levels.transitional import Transitional
 
 from config import *
 
@@ -32,7 +34,8 @@ pt_session = PromptSession()
 console = Console()
 
 # Мессенджер
-MESSENGER_CLASS = None
+MODULE_CLASS = None
+MODULE_CLASS_SEND = None
 
 # ID собеседника в мессенджере
 COMPANION_ID = None
@@ -46,15 +49,11 @@ SIGN_PRIVATE_KEY = None
 # Публичный ключ
 SIGN_PUBLIC_KEY = None
 
+# Приватный ключ для ECC
 MY_PRIVATE_KEY = None
 
 # Ключ шифрования AES
 AES_KEY = None
-
-
-LISTENER = None
-SENDER = None
-
 
 # NODE ID собеседника
 COMPANION_NODE_ID = None
@@ -65,14 +64,19 @@ COMPANION_SIGN = None
 # ECC public key собеседника
 COMPANION_PUBLIC_KEY = None
 
-
+# Пароль пользователя
 USER_PASSWORD = None
+
+# Уровни
+TRANSITIONAL_LEVEL = None
+TRANSPORT_LEVEL = None
+PRESENTATION_LEVEL = None
+APPLICATION_LEVEL = None
+
+TRANSITIONAL_LEVEL_INGESTER = None
 
 
 def main():
-
-    # перед всем должна быть инциализация уровней.
-    # init_levels()
 
     init()
 
@@ -93,6 +97,9 @@ def init():
     # Создаем директорию с данными
     os.makedirs(DATA_DIR_PATH, exist_ok=True)
     os.makedirs(KNOWN_NODES_DIR_PATH, exist_ok=True)
+
+    # инциализация уровней
+    init_levels()
 
     # Настройка мессенджера
     messenger_config()
@@ -132,16 +139,42 @@ def init():
     # Может сделать отправку служебного сообщения, которое говорит о том что мы готовы к передаче. Это сообщение передается уже зашифрованым
 
 
+def init_levels():
+
+    global TRANSITIONAL_LEVEL
+    global TRANSPORT_LEVEL
+    global PRESENTATION_LEVEL
+    global APPLICATION_LEVEL
+
+    global TRANSITIONAL_LEVEL_INGESTER
+
+    with console.status("[!] LEVELS: [yellow]Loading...[/yellow]") as status:
+
+        APPLICATION_LEVEL = Application()
+        PRESENTATION_LEVEL = Presentation()
+        TRANSPORT_LEVEL = Transport()
+        TRANSITIONAL_LEVEL = Transitional()
+        TRANSITIONAL_LEVEL_INGESTER = TRANSITIONAL_LEVEL.receive
+
+        status.update("[!] LEVELS: [yellow]Level class objects created[/yellow]")
+
+        APPLICATION_LEVEL.update_levels(sys.modules[__name__], PRESENTATION_LEVEL)
+        PRESENTATION_LEVEL.update_levels(APPLICATION_LEVEL, TRANSPORT_LEVEL)
+        TRANSPORT_LEVEL.update_levels(PRESENTATION_LEVEL, TRANSITIONAL_LEVEL)
+
+    console.print("[+] LEVELS: [green]Done[/green]")
+
+
 # Конфигурация мессенджера
 def messenger_config():
 
     global COMPANION_ID
-    global MESSENGER_CLASS
-    global LISTENER
-    global SENDER
+    global MODULE_CLASS
+    global TRANSITIONAL_LEVEL_INGESTER
 
     # Выбор мессенджера
     module_manager.load()
+
     print_formatted_text(HTML(f'\n - - Modules (Messengers) - -'))
     print_formatted_text(HTML(f'{module_manager.get_modules_string()}'))
     while True:
@@ -151,8 +184,8 @@ def messenger_config():
             error("Enter a number!")
             continue
         messenger_index = int(messenger_index)
-        MESSENGER_CLASS = module_manager.get_module_by_index(messenger_index)
-        if not MESSENGER_CLASS:
+        MODULE_CLASS = module_manager.get_module_by_index(messenger_index)
+        if not MODULE_CLASS:
             error("Selected messenger does not exist!")
             continue
         break
@@ -164,7 +197,7 @@ def messenger_config():
     # Спрашиваем у пользователя Credentials
     creds = []
     print_formatted_text(HTML(f'\n - - Credentials - -\n'))
-    all_module_creds = MESSENGER_CLASS.get_exp_creds()
+    all_module_creds = MODULE_CLASS.get_exp_creds()
     for n, cred in enumerate(all_module_creds):
         if len(all_module_creds) > 1:
             print_formatted_text(HTML(f"{n+1}/{len(all_module_creds)}. '{cred.name}' - {cred.description}"))
@@ -175,14 +208,9 @@ def messenger_config():
         print()
         creds.append(user_cred)
 
-    # Создание Listener
-    LISTENER = listener.Listener(0, 0, pt_session, ready_data_ingester)
-
     # Создаем сессию в модуле мессенджера
-    MESSENGER_CLASS.create_session(creds, LISTENER.ingester, COMPANION_ID)
-
-    # Создание Sender
-    SENDER = sender.Sender(0, SIGN_PRIVATE_KEY, MESSENGER_CLASS.sender.send)
+    MODULE_CLASS.create_session(creds, TRANSITIONAL_LEVEL_INGESTER, COMPANION_ID)
+    TRANSITIONAL_LEVEL.update_levels(TRANSPORT_LEVEL, MODULE_CLASS.sender)
 
 
 # Генерация или получение ID узла
@@ -275,7 +303,7 @@ def node_id_exchange(status):
         status.update("[!] SIGNATURES: [yellow]Waiting for companion node id...[/yellow]")
         # !!!!!!!! нужно сделать так чтобы если долго не приходит то отправить заново свой и ждать. нужно сделать так везде во всех while
         if TIMER_NODE_ID_EXCHANGE >= 5.0:
-            SENDER.send_node_id(NODE_ID)
+            APPLICATION_LEVEL.send_my_node_id(NODE_ID)
             TIMER_NODE_ID_EXCHANGE = 0.0
         time.sleep(0.1)
         TIMER_NODE_ID_EXCHANGE += 0.1
@@ -342,7 +370,7 @@ def check_and_exchange_companion_sign(status):
 
         status.update("[!] SIGNATURES: [yellow]Sending our signature. Starting the exchange of signatures...[/yellow]")
 
-        SENDER.send_sign(sign_public_bytes_X962)
+        APPLICATION_LEVEL.send_my_sign(sign_public_bytes_X962)
 
         # Если код продолжается, то значит что новая подпись пришла или же подписи просто нет в файле, и нужно получить новую подпись от собеседника и записать ее в файл
 
@@ -401,9 +429,9 @@ def check_and_exchange_companion_sign(status):
         raise Exception(e)
 
     finally:
-        SENDER.update_sign_private_key(SIGN_PRIVATE_KEY)
-        LISTENER.companion_public_key = COMPANION_SIGN # обновляем подпись собеседника
-        LISTENER.DO_SIGN = True # ОБЯЗАТЕЛЬНО!!! Так как теперь используется подпись
+        TRANSITIONAL_LEVEL.SIGN_PRIVATE_KEY = SIGN_PRIVATE_KEY
+        TRANSITIONAL_LEVEL.COMPANION_SIGN_PUBLIC_KEY = COMPANION_SIGN # обновляем подпись собеседника
+        TRANSITIONAL_LEVEL.DO_SIGN = True # ОБЯЗАТЕЛЬНО!!! Так как теперь используется подпись
 
 
 # Генерация и обмен публичными ключами, вычисление симметриного ключа
@@ -420,7 +448,7 @@ def generate_and_exchange_ecc_keys(status):
 
     # Передача публичного ключа
     status.update("[!] SIGNATURES: [yellow]Sending public key. Starting the exchange of public keys...[/yellow]")
-    SENDER.send_public_key(my_pkey_bytes)
+    APPLICATION_LEVEL.send_my_public_key(my_pkey_bytes)
 
     # Ожидаем публичный ключ от собеседника
     while not COMPANION_PUBLIC_KEY:
@@ -431,58 +459,37 @@ def generate_and_exchange_ecc_keys(status):
     status.update("[!] ENCRYPTION: [yellow]Symmetric key computation...[/yellow]")
     AES_KEY = MY_PRIVATE_KEY.exchange(ec.ECDH(), COMPANION_PUBLIC_KEY)
 
-    LISTENER.DO_ENCRYPT = True
-    SENDER.aes_key = AES_KEY
-    LISTENER.aes_key = AES_KEY
+    PRESENTATION_LEVEL.DO_ENCRYPT = True
+    PRESENTATION_LEVEL.AES_KEY = AES_KEY
 
 
-# Принимает готовые данные от Listener
-# а именно PayloadPacket
-def ready_data_ingester(pack_type, payload_packet: packet.PayloadPacket):
-
-    global COMPANION_NODE_ID
-    global COMPANION_SIGN
-    global COMPANION_PUBLIC_KEY
-
-    if pack_type == packet.PackTypes.SERVICE.value:
-
-        # print(packet.CMDTypes(payload_packet.pack_type).name)
-        # print(payload_packet.payload)
-
-        if payload_packet.pack_type == packet.CMDTypes.MY_NODE_ID.value:
-            COMPANION_NODE_ID = payload_packet.payload.decode()
-
-        if payload_packet.pack_type == packet.CMDTypes.MY_SIGN.value:
-            # print("Listener: new COMPANION_SIGN")
-            COMPANION_SIGN = ec.EllipticCurvePublicKey.from_encoded_point(
-                ec.SECP256R1(),
-                payload_packet.payload
-            )
-
-        if payload_packet.pack_type == packet.CMDTypes.MY_PUBLIC_KEY.value:
-            COMPANION_PUBLIC_KEY = ec.EllipticCurvePublicKey.from_encoded_point(
-                ec.SECP256R1(),
-                payload_packet.payload
-            )
-
-        # если получили node_id и подпись, то DO_SIGN = True
-        # если получили public_key, то DO_ENCRYPT = True
 
 
-    elif pack_type == packet.PackTypes.COMMUNIC.value:
 
-        if payload_packet.pack_type == packet.DataTypes.TEXT.value:
-
-            with patch_stdout():
-                print_formatted_text(HTML(f'<ansiblue>peer:</ansiblue> {payload_packet.payload.decode()}'))
-
-        else:
-            print("Not TEXT data type:\n", payload_packet.payload)
+def receive_node_id(node_id: str):
+    COMPANION_NODE_ID = payload_packet.payload.decode()
 
 
-def remove_password_from_ram():
-    for i in range(len(USER_PASSWORD)):
-        USER_PASSWORD[i] = 0
+def receive_sign(sign: bytes):
+    COMPANION_SIGN = ec.EllipticCurvePublicKey.from_encoded_point(
+        ec.SECP256R1(),
+        payload_packet.payload
+    )
+
+
+def receive_public_key(public_key: bytes):
+    COMPANION_PUBLIC_KEY = ec.EllipticCurvePublicKey.from_encoded_point(
+        ec.SECP256R1(),
+        payload_packet.payload
+    )
+
+
+def receive_text(text: str):
+    with patch_stdout():
+        print_formatted_text(HTML(f'<ansiblue>peer:</ansiblue> {payload_packet.payload.decode()}'))
+
+
+
 
 
 def sender_text_box():
@@ -497,7 +504,7 @@ def sender_text_box():
                 sender_console()
                 continue
 
-        SENDER.send_comunic(packet.DataTypes.TEXT.value, user_input.encode())
+        APPLICATION_LEVEL.send_text(user_input)
 
 
 # Это консоль для управления программой
@@ -518,6 +525,11 @@ def sender_console():
             sys.exit(0)
         else:
             error('Unknown command!')
+
+
+def remove_password_from_ram():
+    for i in range(len(USER_PASSWORD)):
+        USER_PASSWORD[i] = 0
 
 
 def get_firts_last_4_chars_sign(sign):
