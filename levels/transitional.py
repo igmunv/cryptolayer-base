@@ -41,7 +41,8 @@ class Transitional(Base):
             # проверить подпись
             if not self.check_sign(signature, raw_packet):
                 # может потом просто делать return при неправильной подписи
-                raise ValueError("sign error") # временно
+                self.logger.info(f"signature error")
+                return
 
         self.UPPER_LEVEL.receive(raw_packet)
 

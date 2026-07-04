@@ -3,7 +3,7 @@ from vk_api.longpoll import VkLongPoll, VkEventType
 
 import threading, time
 
-from base_module import BaseModule, Credential
+from modules.base import BaseModule, Credential
 
 
 class VK(BaseModule):

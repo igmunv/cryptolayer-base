@@ -22,7 +22,7 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
 import module_manager
-from base_module import BaseModule
+from modules.base import BaseModule
 
 from levels.application import Application
 from levels.presentation import Presentation
@@ -64,6 +64,9 @@ COMPANION_NODE_ID = None
 # подпись собеседника
 COMPANION_SIGN = None
 
+# собеседник готов использовать подписи
+COMPANION_READY_USE_SIGN = False
+
 # ECC public key собеседника
 COMPANION_PUBLIC_KEY = None
 
@@ -79,6 +82,7 @@ APPLICATION_LEVEL = None
 TRANSITIONAL_LEVEL_INGESTER = None
 
 
+# Точка входа
 def main():
 
     try:
@@ -108,6 +112,7 @@ def main():
         console.print("[+] Crypto Layer: [green]Bye![/green]")
 
 
+# Инциализация Crypto Layer
 def init():
 
     global USER_PASSWORD
@@ -165,6 +170,7 @@ def init():
     # Может сделать отправку служебного сообщения, которое говорит о том что мы готовы к передаче. Это сообщение передается уже зашифрованым
 
 
+# Инциализация логирования
 def init_logger():
 
     log_format = logging.Formatter(
@@ -191,7 +197,7 @@ def init_logger():
         root_logger.addHandler(terminal_handler)
 
 
-
+# Создание и настройка "сетевых" уровней
 def init_levels():
 
     global TRANSITIONAL_LEVEL
@@ -361,8 +367,6 @@ def node_id_exchange(status):
         time.sleep(0.1)
         TIMER_NODE_ID_EXCHANGE += 0.1
 
-    # print("COMPANION_NODE_ID", "=", COMPANION_NODE_ID)
-
 
 # Проверка существования цифровой подписи собеседника и обмен ею
 def check_and_exchange_companion_sign(status):
@@ -372,6 +376,12 @@ def check_and_exchange_companion_sign(status):
     try:
 
         COMPANION_SIGN_FILE_PATH = os.path.join(KNOWN_NODES_DIR_PATH, COMPANION_NODE_ID)
+
+        loaded_public_key = None
+
+        ALREADY_SIGN_SEND = False
+
+        ALREADY_SIGN_ACCEPT = None
 
         # цифровая подпись существует
         # достаем из файла и расшифровываем ее
@@ -402,80 +412,94 @@ def check_and_exchange_companion_sign(status):
 
             loaded_public_key = serialization.load_pem_public_key(pem_public_bytes)
 
-            # ждем, так как собеседник может отправить свою подпись
-            # !!! нужно переделать. и сделать так что если чел отправил подпись, в любой момент, то мы ее применяем
-            status.update("[!] Signatures: [yellow]Waiting to see if companion sends signature...[/yellow]")
-            time.sleep(5)
+            # сообщаем о готовности использовать подпись
+            APPLICATION_LEVEL.send_ready_use_sign()
 
-            # если собеседник не отправил свою подпись, то значит та которая в файле - актуальна
-            if not COMPANION_SIGN:
-                COMPANION_SIGN = loaded_public_key
-                return
-
-            # если не существует то мы отправляем собеседнику свою подпись, а он в ответ должен отправить свою подпись.
-            # далее уже происходит проверка подписей
         else:
             status.update("[!] Signatures: [yellow]Сompanion signature does not exists[/yellow]")
 
-        sign_public_bytes_X962 = SIGN_PUBLIC_KEY.public_bytes(
-            encoding=serialization.Encoding.X962,
-            format=serialization.PublicFormat.CompressedPoint
-        )
+            # Отправка своей подписи + флаг о том что уже отправили свою подпись
 
-        status.update("[!] Signatures: [yellow]Sending our signature. Starting the exchange of signatures...[/yellow]")
+            status.update("[!] Signatures: [yellow]Sending our signature. Starting the exchange of signatures...[/yellow]")
 
-        APPLICATION_LEVEL.send_my_sign(sign_public_bytes_X962)
-
-        # Если код продолжается, то значит что новая подпись пришла или же подписи просто нет в файле, и нужно получить новую подпись от собеседника и записать ее в файл
-
-        while not COMPANION_SIGN:
-            status.update("[!] Signatures: [yellow]Waiting for companion signature...[/yellow]")
-            time.sleep(5)
-
-        status.stop()
-
-        # Вывод подписи пользователя
-        print_formatted_text(HTML(f'Your signature (show this to companion):\n| <ansiyellow>{get_firts_last_4_chars_sign(SIGN_PUBLIC_KEY)}</ansiyellow>\n'))
-        # Вывод подписи собеседника
-        print_formatted_text(HTML(f'Companion signature (сheck for correctness):\n| <ansiyellow>{get_firts_last_4_chars_sign(COMPANION_SIGN)}</ansiyellow>\n'))
-        # Проверка подписи собеседника пользователем
-        if answer(f"Is the companion signature correct?"):
-
-            print()
-            status.start()
-
-            # Доверяем, записываем, используем эту подпись
-
-            # Зашифровываем публичную подпись собеседника паролем
-
-            status.update("[!] Signatures: [yellow]Save companion signature in file...[/yellow]")
-
-            pem_public_bytes = COMPANION_SIGN.public_bytes(
-                encoding=serialization.Encoding.PEM,
-                format=serialization.PublicFormat.SubjectPublicKeyInfo
+            sign_public_bytes_X962 = SIGN_PUBLIC_KEY.public_bytes(
+                encoding=serialization.Encoding.X962,
+                format=serialization.PublicFormat.CompressedPoint
             )
 
-            salt = os.urandom(16)
-            hkdf = HKDF(
-                algorithm=hashes.SHA256(),
-                length=32,
-                salt=salt,
-                info=b"public-key-encryption",
-            )
-            up_aes_key = hkdf.derive(USER_PASSWORD)
+            APPLICATION_LEVEL.send_my_sign(sign_public_bytes_X962)
+            ALREADY_SIGN_SEND = True
 
-            aesgcm = AESGCM(up_aes_key)
-            nonce = os.urandom(12)
-            encrypted_public_data = aesgcm.encrypt(nonce, pem_public_bytes, associated_data=None)
+        # Ожидаем подпись или готовность от собеседника
 
-            # В файл сохраняем уже зашифрованную подпись
+        status.update("[!] Signatures: [yellow]Waiting for companion signature...[/yellow]")
+        while not COMPANION_READY_USE_SIGN:
+            # Проверка на то пришла ли подпись собеса
+            # а также проверка если уже принимали подпись.
+            # здесь просто сранивнение текущей подписи и того что принимали
+            if COMPANION_SIGN and (ALREADY_SIGN_ACCEPT != COMPANION_SIGN):
 
-            with open(COMPANION_SIGN_FILE_PATH, "wb") as f:
-                f.write(salt + nonce + encrypted_public_data)
+                # Если подпись не отправляли до этого, то отправляем
+                if not ALREADY_SIGN_SEND:
+                    sign_public_bytes_X962 = SIGN_PUBLIC_KEY.public_bytes(
+                        encoding=serialization.Encoding.X962,
+                        format=serialization.PublicFormat.CompressedPoint
+                    )
+                    APPLICATION_LEVEL.send_my_sign(sign_public_bytes_X962)
 
-        else:
-            print()
-            raise TypeError("do not trust the signature")
+                status.stop()
+
+                # Вывод подписи пользователя
+                print_formatted_text(HTML(f'Your signature (show this to companion):\n| <ansiyellow>{get_firts_last_4_chars_sign(SIGN_PUBLIC_KEY)}</ansiyellow>\n'))
+                # Вывод подписи собеседника
+                print_formatted_text(HTML(f'Companion signature (сheck for correctness):\n| <ansiyellow>{get_firts_last_4_chars_sign(COMPANION_SIGN)}</ansiyellow>\n'))
+                # Проверка подписи собеседника пользователем
+                if answer(f"Is the companion signature correct?"):
+                    print()
+                    status.start()
+
+                    APPLICATION_LEVEL.send_ready_use_sign()
+                    ALREADY_SIGN_ACCEPT = COMPANION_SIGN
+
+                    # Доверяем, записываем, используем эту подпись
+
+                    # Зашифровываем публичную подпись собеседника паролем
+
+                    status.update("[!] Signatures: [yellow]Save companion signature in file...[/yellow]")
+
+                    pem_public_bytes = COMPANION_SIGN.public_bytes(
+                        encoding=serialization.Encoding.PEM,
+                        format=serialization.PublicFormat.SubjectPublicKeyInfo
+                    )
+
+                    salt = os.urandom(16)
+                    hkdf = HKDF(
+                        algorithm=hashes.SHA256(),
+                        length=32,
+                        salt=salt,
+                        info=b"public-key-encryption",
+                    )
+                    up_aes_key = hkdf.derive(USER_PASSWORD)
+
+                    aesgcm = AESGCM(up_aes_key)
+                    nonce = os.urandom(12)
+                    encrypted_public_data = aesgcm.encrypt(nonce, pem_public_bytes, associated_data=None)
+
+                    # В файл сохраняем уже зашифрованную подпись
+
+                    with open(COMPANION_SIGN_FILE_PATH, "wb") as f:
+                        f.write(salt + nonce + encrypted_public_data)
+
+
+                else:
+                    print()
+                    raise TypeError("do not trust the signature")
+
+            time.sleep(0.1)
+
+        if not COMPANION_SIGN:
+            COMPANION_SIGN = loaded_public_key
+
 
     except Exception as e:
         # ЭТО ВРЕМЕННО!
@@ -505,9 +529,9 @@ def generate_and_exchange_ecc_keys(status):
     APPLICATION_LEVEL.send_my_public_key(my_pkey_bytes)
 
     # Ожидаем публичный ключ от собеседника
+    status.update("[!] Encryption: [yellow]Waiting for companion public key...[/yellow]")
     while not COMPANION_PUBLIC_KEY:
-        status.update("[!] Encryption: [yellow]Waiting for companion public key...[/yellow]")
-        time.sleep(5)
+        time.sleep(0.1)
 
     # Вычисление симетричного ключа
     status.update("[!] Encryption: [yellow]Symmetric key computation...[/yellow]")
@@ -515,7 +539,6 @@ def generate_and_exchange_ecc_keys(status):
 
     PRESENTATION_LEVEL.DO_ENCRYPT = True
     PRESENTATION_LEVEL.AES_KEY = AES_KEY
-
 
 
 
@@ -547,6 +570,9 @@ def receive_text(text: str):
         print_formatted_text(HTML(f'<ansiblue>peer:</ansiblue> {text}'))
 
 
+def receive_ready_use_sign():
+    global COMPANION_READY_USE_SIGN
+    COMPANION_READY_USE_SIGN = True
 
 
 
@@ -585,11 +611,13 @@ def sender_console():
             error('Unknown command!')
 
 
+# Удалить мастер пароль из памяти
 def remove_password_from_ram():
     for i in range(len(USER_PASSWORD)):
         USER_PASSWORD[i] = 0
 
 
+# Получить первые и последние 4 байта подписи
 def get_firts_last_4_chars_sign(sign):
 
     sign_public_bytes_pem = sign.public_bytes(
@@ -600,7 +628,6 @@ def get_firts_last_4_chars_sign(sign):
     first_4 = sign_public_bytes_pem[:4]
     last_4 = sign_public_bytes_pem[-4:]
     return f"{first_4.hex()}...{last_4.hex()}"
-
 
 
 # Для вопросов

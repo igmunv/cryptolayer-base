@@ -2,7 +2,7 @@ import os
 import importlib
 import inspect
 
-from base_module import BaseModule
+from modules.base import BaseModule
 
 
 MODULES_DIR_NAME = "modules"

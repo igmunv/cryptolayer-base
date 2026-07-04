@@ -24,6 +24,11 @@ class Application(Base):
         self.send(packet.to_bytes())
 
 
+    def send_ready_use_sign(self):
+        packet = ApplicationPacket(PackTypes.SERVICE.value, CMDTypes.READY_USE_SIGN.value, b"")
+        self.send(packet.to_bytes())
+
+
     def send_my_public_key(self, public_key: bytes):
         packet = ApplicationPacket(PackTypes.SERVICE.value, CMDTypes.MY_PUBLIC_KEY.value, public_key)
         self.send(packet.to_bytes())
@@ -39,10 +44,13 @@ class Application(Base):
             if packet.data_type == CMDTypes.MY_NODE_ID.value:
                 self.UPPER_LEVEL.receive_node_id(packet.payload.decode())
 
-            if packet.data_type == CMDTypes.MY_SIGN.value:
+            elif packet.data_type == CMDTypes.MY_SIGN.value:
                 self.UPPER_LEVEL.receive_sign(packet.payload)
 
-            if packet.data_type == CMDTypes.MY_PUBLIC_KEY.value:
+            elif packet.data_type == CMDTypes.READY_USE_SIGN.value:
+                self.UPPER_LEVEL.receive_ready_use_sign()
+
+            elif packet.data_type == CMDTypes.MY_PUBLIC_KEY.value:
                 self.UPPER_LEVEL.receive_public_key(packet.payload)
 
         elif packet.pack_type == PackTypes.COMMUNIC.value:
