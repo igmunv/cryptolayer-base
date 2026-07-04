@@ -39,10 +39,11 @@ class VK(BaseModule):
             self.longpoll = VkLongPoll(self.vk_session)
 
         def listen(self) -> str:
-            for event in self.longpoll.listen():
-                if event.type == VkEventType.MESSAGE_NEW:
-                    if not event.from_me and event.peer_id == int(self.user_id.strip()) and event.text:
-                        self.ingester(event.text)
+            while not self.stop_event.is_set():
+                for event in self.longpoll.check():
+                    if event.type == VkEventType.MESSAGE_NEW:
+                        if not event.from_me and event.peer_id == int(self.user_id.strip()) and event.text:
+                            self.ingester(event.text)
 
 
     def create_session(self, credentials, ingester: callable, user_id):

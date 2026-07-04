@@ -5,6 +5,8 @@ import logging
 
 class Base:
 
+    stop_event = threading.Event()
+
     def __init__(self):
 
         # Буффер пришедших данных
@@ -50,7 +52,7 @@ class Base:
 
     # постоянно читает данные из PENDING_PROCESSING_BUF
     def receiver(self):
-        while True:
+        while not self.stop_event.is_set():
             with self.PEND_PROC_BUF_LOCK:
                 if self.PENDING_PROCESSING_BUF:
                     data = self.PENDING_PROCESSING_BUF[0]
@@ -67,7 +69,7 @@ class Base:
 
     # постоянно читает PENDING_SEND_BUF
     def sender(self):
-        while True:
+        while not self.stop_event.is_set():
             with self.PEND_SEND_BUF_LOCK:
                 if self.PENDING_SEND_BUF:
                     data = self.PENDING_SEND_BUF[0]

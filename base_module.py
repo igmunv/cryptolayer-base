@@ -1,3 +1,5 @@
+import threading
+
 
 class Credential:
 
@@ -20,6 +22,8 @@ class BaseModule:
 
     sender = None
     listener = None
+
+    stop_event = threading.Event()
 
 
     class Sender:

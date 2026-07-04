@@ -55,7 +55,7 @@ class Transport(Base):
         self.logger.info(f"send packet '{packet_hash}'")
         self.LOWER_LEVEL.send(raw_packet_bytes)
 
-        while packet_hash in self.PENDING_ACK_PACKS:
+        while packet_hash in self.PENDING_ACK_PACKS and not self.stop_event.is_set():
 
             self.logger.info(f"wait ack...")
 

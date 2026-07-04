@@ -1,3 +1,7 @@
 prompt_toolkit
 zstandard
 vk_api
+colorama
+rich
+cryptography
+

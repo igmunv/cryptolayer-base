@@ -4,6 +4,7 @@ import time
 import os
 import uuid
 import logging
+import getpass
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit.patch_stdout import patch_stdout
@@ -21,12 +22,13 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
 import module_manager
-import getpass
+from base_module import BaseModule
 
 from levels.application import Application
 from levels.presentation import Presentation
 from levels.transport import Transport
 from levels.transitional import Transitional
+from levels.base import Base
 
 from config import *
 
@@ -79,11 +81,31 @@ TRANSITIONAL_LEVEL_INGESTER = None
 
 def main():
 
-    init()
+    try:
 
-    # здесь мы уже можем отправлять сообщения
-    print_formatted_text(HTML(f'\n---------------------\n'))
-    sender_text_box()
+        init()
+
+        # здесь мы уже можем отправлять сообщения
+        print_formatted_text(HTML(f'\n---------------------\n'))
+        sender_text_box()
+
+    except KeyboardInterrupt:
+        print_formatted_text(HTML(f'\n---------------------\n'))
+        console.print("\n[+] KeyboardInterrupt: [green]Done[/green]")
+
+    finally:
+
+        console.print("[!] Crypto Layer: [yellow]Shutting down...[/yellow]")
+
+        Base.stop_event.set()
+        BaseModule.stop_event.set()
+
+        main_thread = threading.main_thread()
+        for thread in threading.enumerate():
+            if thread is not main_thread:
+                thread.join()
+
+        console.print("[+] Crypto Layer: [green]Bye![/green]")
 
 
 def init():
@@ -108,12 +130,12 @@ def init():
     # Настройка мессенджера
     messenger_config()
 
-    # Генерация ID узла
-    generate_node_id()
-
     # - - РАБОТА С ПОДПИСЯМИ - -
 
-    with console.status("[!] SIGNATURES: [yellow]Loading...[/yellow]") as status:
+    with console.status("[!] Signatures: [yellow]Loading...[/yellow]") as status:
+
+        # Генерация ID узла
+        generate_node_id()
 
         # Чтение или генерация цифровой подписи данного узла
         generate_signature(status)
@@ -126,19 +148,19 @@ def init():
         # Затем спрашиваем у пользователя доверяем ли этой подписи, показывая первые 4 символа, и последние
         check_and_exchange_companion_sign(status)
 
-    console.print("[+] SIGNATURES: [green]Done[/green]")
+    console.print("[+] Signatures: [green]Done[/green]")
 
     # удалить пароль пользователя из памяти, так как он уже не нужен
     remove_password_from_ram()
 
     # - - РАБОТА С КЛЮЧАМИ ШИФРОВАНИЯ - -
 
-    with console.status("[!] ENCRYPTION: [yellow]Loading...[/yellow]") as status:
+    with console.status("[!] Encryption: [yellow]Loading...[/yellow]") as status:
 
         # Генерация и обмен публичными ключами ECC
         generate_and_exchange_ecc_keys(status)
 
-    console.print("[+] ENCRYPTION: [green]Done[/green]")
+    console.print("[+] Encryption: [green]Done[/green]")
 
     # Может сделать отправку служебного сообщения, которое говорит о том что мы готовы к передаче. Это сообщение передается уже зашифрованым
 
@@ -179,7 +201,7 @@ def init_levels():
 
     global TRANSITIONAL_LEVEL_INGESTER
 
-    with console.status("[!] LEVELS: [yellow]Loading...[/yellow]") as status:
+    with console.status("[!] Levels: [yellow]Loading...[/yellow]") as status:
 
         APPLICATION_LEVEL = Application()
         PRESENTATION_LEVEL = Presentation()
@@ -187,13 +209,13 @@ def init_levels():
         TRANSITIONAL_LEVEL = Transitional()
         TRANSITIONAL_LEVEL_INGESTER = TRANSITIONAL_LEVEL.receive
 
-        status.update("[!] LEVELS: [yellow]Level class objects created[/yellow]")
+        status.update("[!] Levels: [yellow]Level class objects created[/yellow]")
 
         APPLICATION_LEVEL.update_levels(sys.modules[__name__], PRESENTATION_LEVEL)
         PRESENTATION_LEVEL.update_levels(APPLICATION_LEVEL, TRANSPORT_LEVEL)
         TRANSPORT_LEVEL.update_levels(PRESENTATION_LEVEL, TRANSITIONAL_LEVEL)
 
-    console.print("[+] LEVELS: [green]Done[/green]")
+    console.print("[+] Levels: [green]Done[/green]")
 
 
 # Конфигурация мессенджера
@@ -278,7 +300,7 @@ def generate_signature(status):
     # файл нашей подписи есть
     if os.path.exists(SIGN_PRIVATE_FILE_PATH):
 
-        status.update("[!] SIGNATURES: [yellow]Our signature file exists[/yellow]")
+        status.update("[!] Signatures: [yellow]Our signature file exists[/yellow]")
 
         with open(SIGN_PRIVATE_FILE_PATH, "rb") as f:
             loaded_pem_data = f.read()
@@ -286,7 +308,7 @@ def generate_signature(status):
         # если файл не пустой
         if loaded_pem_data:
 
-            status.update("[!] SIGNATURES: [yellow]Signature file not empty. Use this signature[/yellow]")
+            status.update("[!] Signatures: [yellow]Signature file not empty. Use this signature[/yellow]")
 
             SIGN_PRIVATE_KEY = serialization.load_pem_private_key(
                 loaded_pem_data,
@@ -298,11 +320,11 @@ def generate_signature(status):
             return
 
         else:
-            status.update("[!] SIGNATURES: [yellow]Signature file empty[/yellow]")
+            status.update("[!] Signatures: [yellow]Signature file empty[/yellow]")
 
 
     # ... генерация
-    status.update("[!] SIGNATURES: [yellow]Generate new our signature...[/yellow]")
+    status.update("[!] Signatures: [yellow]Generate new our signature...[/yellow]")
 
     SIGN_PRIVATE_KEY = ec.generate_private_key(ec.SECP256R1())
     SIGN_PUBLIC_KEY = SIGN_PRIVATE_KEY.public_key()
@@ -315,7 +337,7 @@ def generate_signature(status):
         encryption_algorithm=serialization.BestAvailableEncryption(bytes(USER_PASSWORD))
     )
 
-    status.update("[!] SIGNATURES: [yellow]Write new signature in file[/yellow]")
+    status.update("[!] Signatures: [yellow]Write new signature in file[/yellow]")
 
     # Записываем байты в файл
     with open(SIGN_PRIVATE_FILE_PATH, "wb") as f:
@@ -325,13 +347,13 @@ def generate_signature(status):
 # Обмен ID узлов
 def node_id_exchange(status):
 
-    status.update("[!] SIGNATURES: [yellow]Sending our node id. Starting the exchange of node id...[/yellow]")
+    status.update("[!] Signatures: [yellow]Sending our node id. Starting the exchange of node id...[/yellow]")
 
     # Передача друг другу Node ID
     # Ожидаем NODE ID собеседника
     TIMER_NODE_ID_EXCHANGE = 5.0
     while not COMPANION_NODE_ID:
-        status.update("[!] SIGNATURES: [yellow]Waiting for companion node id...[/yellow]")
+        status.update("[!] Signatures: [yellow]Waiting for companion node id...[/yellow]")
         # !!!!!!!! нужно сделать так чтобы если долго не приходит то отправить заново свой и ждать. нужно сделать так везде во всех while
         if TIMER_NODE_ID_EXCHANGE >= 5.0:
             APPLICATION_LEVEL.send_my_node_id(NODE_ID)
@@ -355,10 +377,10 @@ def check_and_exchange_companion_sign(status):
         # достаем из файла и расшифровываем ее
         if os.path.exists(COMPANION_SIGN_FILE_PATH):
 
-            status.update("[!] SIGNATURES: [yellow]Сompanion signature exists[/yellow]")
+            status.update("[!] Signatures: [yellow]Сompanion signature exists[/yellow]")
 
             # Чтение подписи собеседника из файла
-            status.update("[!] SIGNATURES: [yellow]Reading companion signature from file...[/yellow]")
+            status.update("[!] Signatures: [yellow]Reading companion signature from file...[/yellow]")
 
             with open(COMPANION_SIGN_FILE_PATH, "rb") as f:
                 file_content = f.read()
@@ -382,7 +404,7 @@ def check_and_exchange_companion_sign(status):
 
             # ждем, так как собеседник может отправить свою подпись
             # !!! нужно переделать. и сделать так что если чел отправил подпись, в любой момент, то мы ее применяем
-            status.update("[!] SIGNATURES: [yellow]Waiting to see if companion sends signature...[/yellow]")
+            status.update("[!] Signatures: [yellow]Waiting to see if companion sends signature...[/yellow]")
             time.sleep(5)
 
             # если собеседник не отправил свою подпись, то значит та которая в файле - актуальна
@@ -393,21 +415,21 @@ def check_and_exchange_companion_sign(status):
             # если не существует то мы отправляем собеседнику свою подпись, а он в ответ должен отправить свою подпись.
             # далее уже происходит проверка подписей
         else:
-            status.update("[!] SIGNATURES: [yellow]Сompanion signature does not exists[/yellow]")
+            status.update("[!] Signatures: [yellow]Сompanion signature does not exists[/yellow]")
 
         sign_public_bytes_X962 = SIGN_PUBLIC_KEY.public_bytes(
             encoding=serialization.Encoding.X962,
             format=serialization.PublicFormat.CompressedPoint
         )
 
-        status.update("[!] SIGNATURES: [yellow]Sending our signature. Starting the exchange of signatures...[/yellow]")
+        status.update("[!] Signatures: [yellow]Sending our signature. Starting the exchange of signatures...[/yellow]")
 
         APPLICATION_LEVEL.send_my_sign(sign_public_bytes_X962)
 
         # Если код продолжается, то значит что новая подпись пришла или же подписи просто нет в файле, и нужно получить новую подпись от собеседника и записать ее в файл
 
         while not COMPANION_SIGN:
-            status.update("[!] SIGNATURES: [yellow]Waiting for companion signature...[/yellow]")
+            status.update("[!] Signatures: [yellow]Waiting for companion signature...[/yellow]")
             time.sleep(5)
 
         status.stop()
@@ -426,7 +448,7 @@ def check_and_exchange_companion_sign(status):
 
             # Зашифровываем публичную подпись собеседника паролем
 
-            status.update("[!] SIGNATURES: [yellow]Save companion signature in file...[/yellow]")
+            status.update("[!] Signatures: [yellow]Save companion signature in file...[/yellow]")
 
             pem_public_bytes = COMPANION_SIGN.public_bytes(
                 encoding=serialization.Encoding.PEM,
@@ -470,7 +492,7 @@ def check_and_exchange_companion_sign(status):
 def generate_and_exchange_ecc_keys(status):
 
     # Генерация пары ключей
-    status.update("[!] ENCRYPTION: [yellow]Generate keys...[/yellow]")
+    status.update("[!] Encryption: [yellow]Generate keys...[/yellow]")
     MY_PRIVATE_KEY = ec.generate_private_key(ec.SECP256R1())
     my_public_key = MY_PRIVATE_KEY.public_key()
     my_pkey_bytes = my_public_key.public_bytes(
@@ -479,16 +501,16 @@ def generate_and_exchange_ecc_keys(status):
         )
 
     # Передача публичного ключа
-    status.update("[!] SIGNATURES: [yellow]Sending public key. Starting the exchange of public keys...[/yellow]")
+    status.update("[!] Encryption: [yellow]Sending public key. Starting the exchange of public keys...[/yellow]")
     APPLICATION_LEVEL.send_my_public_key(my_pkey_bytes)
 
     # Ожидаем публичный ключ от собеседника
     while not COMPANION_PUBLIC_KEY:
-        status.update("[!] ENCRYPTION: [yellow]Waiting for companion public key...[/yellow]")
+        status.update("[!] Encryption: [yellow]Waiting for companion public key...[/yellow]")
         time.sleep(5)
 
     # Вычисление симетричного ключа
-    status.update("[!] ENCRYPTION: [yellow]Symmetric key computation...[/yellow]")
+    status.update("[!] Encryption: [yellow]Symmetric key computation...[/yellow]")
     AES_KEY = MY_PRIVATE_KEY.exchange(ec.ECDH(), COMPANION_PUBLIC_KEY)
 
     PRESENTATION_LEVEL.DO_ENCRYPT = True
