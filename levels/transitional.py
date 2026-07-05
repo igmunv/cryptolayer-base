@@ -28,23 +28,27 @@ class Transitional(Base):
         encoded_packet = data.split(" ")
 
         # декодируем
-        wc = wordcoder.WordCoder(config.DICT_WORDCODER_RU)
-        raw_packet = wc.decode(encoded_packet)
+        try:
+            wc = wordcoder.WordCoder(config.DICT_WORDCODER_RU)
+            data = wc.decode(encoded_packet)
+        except Exception as e:
+            self.logger.error(f"WordCoder: decode error: {e}")
+            return
 
         if self.DO_SIGN:
 
             # парсинг подписи
-            sig_len = raw_packet[0]
-            signature = bytes(raw_packet[1 : 1 + sig_len])
-            raw_packet = bytes(raw_packet[1 + sig_len :])
+            sig_len = data[0]
+            signature = bytes(data[1 : 1 + sig_len])
+            data = bytes(data[1 + sig_len :])
 
             # проверить подпись
-            if not self.check_sign(signature, raw_packet):
+            if not self.check_sign(signature, data):
                 # может потом просто делать return при неправильной подписи
-                self.logger.info(f"signature error")
+                self.logger.error(f"signature error")
                 return
 
-        self.UPPER_LEVEL.receive(raw_packet)
+        self.UPPER_LEVEL.receive(data)
 
 
     # постоянно читает PENDING_SEND_BUF, формирует пакет и отправляет данные ниже

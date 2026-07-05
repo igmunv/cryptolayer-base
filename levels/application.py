@@ -25,7 +25,8 @@ class Application(Base):
 
 
     def send_ready_use_sign(self):
-        packet = ApplicationPacket(PackTypes.SERVICE.value, CMDTypes.READY_USE_SIGN.value, b"")
+        print("send_ready_use_sign")
+        packet = ApplicationPacket(PackTypes.SERVICE.value, CMDTypes.READY_USE_SIGN.value, b"0")
         self.send(packet.to_bytes())
 
 

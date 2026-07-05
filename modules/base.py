@@ -1,4 +1,5 @@
 import threading
+import logging
 
 
 class Credential:
@@ -32,6 +33,7 @@ class BaseModule:
 
         def __init__(self, credentials, user_id):
             self.user_id = user_id
+            self.logger = logging.getLogger(f"{self.__class__.__module__}.{self.__class__.__name__}")
 
         def send(self, text: str):
             pass
@@ -42,11 +44,14 @@ class BaseModule:
 
         ingester = None
         user_id = None
+        stop_event = None
 
 
-        def __init__(self, credentials, ingester: callable, user_id):
+        def __init__(self, credentials, ingester: callable, user_id, stop_event):
             self.ingester = ingester
             self.user_id = user_id
+            self.stop_event = stop_event
+            self.logger = logging.getLogger(f"{self.__class__.__module__}.{self.__class__.__name__}")
 
         def listen(self) -> str:
             pass
@@ -64,7 +69,7 @@ class BaseModule:
 
     def create_session(self, credentials, ingester: callable, user_id):
         self.sender = self.Sender(credentials, user_id)
-        self.listener = self.Listener(credentials, ingester, user_id)
+        self.listener = self.Listener(credentials, ingester, user_id, self.stop_event)
 
 
     def get_exp_creds(self):

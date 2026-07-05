@@ -27,7 +27,7 @@ class Presentation(Base):
             try:
                 data = aesgcm.decrypt(nonce, encrypted_data, associated_data=None)
             except Exception as e:
-                print("Ошибка дешифрования! Возможно, данные были изменены.")
+                self.logger.error(f"decryption error!")
                 return
 
         data = lzma.decompress(data)

@@ -21,9 +21,7 @@ LOGS_FILE_NAME = "crypto_layer.log"
 LOGS_FILE_PATH = os.path.join(DATA_DIR_PATH, LOGS_FILE_NAME)
 
 
-CHUNK_SIZE = 100
-
-DELAY = 1
+CHUNK_SIZE = 150
 
 PRINT_LOGS = False
 LOGS_TO_FILE = True
