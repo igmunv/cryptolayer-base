@@ -27,10 +27,14 @@ class Presentation(Base):
             try:
                 data = aesgcm.decrypt(nonce, encrypted_data, associated_data=None)
             except Exception as e:
-                self.logger.error(f"decryption error!")
+                self.logger.error(f"aesgcm decryption error: {e}")
                 return
 
-        data = lzma.decompress(data)
+        try:
+            data = lzma.decompress(data)
+        except Exception as e:
+            self.logger.error(f"lzma decompress error: {e}")
+            return
 
         self.UPPER_LEVEL.receive(data)
 

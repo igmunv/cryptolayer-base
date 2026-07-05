@@ -35,18 +35,16 @@ class Transitional(Base):
             self.logger.error(f"WordCoder: decode error: {e}")
             return
 
-        if self.DO_SIGN:
 
-            # парсинг подписи
-            sig_len = data[0]
-            signature = bytes(data[1 : 1 + sig_len])
-            data = bytes(data[1 + sig_len :])
+        # парсинг подписи
+        sig_len = data[0]
+        signature = bytes(data[1 : 1 + sig_len])
+        data = bytes(data[1 + sig_len :])
 
-            # проверить подпись
-            if not self.check_sign(signature, data):
-                # может потом просто делать return при неправильной подписи
-                self.logger.error(f"signature error")
-                return
+        # проверить подпись
+        if self.DO_SIGN and not self.check_sign(signature, data):
+            self.logger.error(f"signature error")
+            return
 
         self.UPPER_LEVEL.receive(data)
 
@@ -54,15 +52,14 @@ class Transitional(Base):
     # постоянно читает PENDING_SEND_BUF, формирует пакет и отправляет данные ниже
     def sworker(self, data):
 
-        if self.DO_SIGN:
-            signature = self.SIGN_PRIVATE_KEY.sign(
-                data,
-                ec.ECDSA(hashes.SHA256())
-            )
+        signature = self.SIGN_PRIVATE_KEY.sign(
+            data,
+            ec.ECDSA(hashes.SHA256())
+        )
 
-            # объединяем (подпись + пакет)
-            sig_len = len(signature).to_bytes(1, 'big')
-            data = sig_len + signature + data
+        # объединяем (подпись + пакет)
+        sig_len = len(signature).to_bytes(1, 'big')
+        data = sig_len + signature + data
 
         # кодирование (ТОЛЬКО ПЕРЕД ОТПРАВКОЙ СООБЩЕНИЯ)
         wc = wordcoder.WordCoder(config.DICT_WORDCODER_RU)

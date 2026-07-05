@@ -81,6 +81,8 @@ APPLICATION_LEVEL = None
 
 TRANSITIONAL_LEVEL_INGESTER = None
 
+LOGGER = None
+
 
 # Точка входа
 def main():
@@ -173,6 +175,8 @@ def init():
 # Инциализация логирования
 def init_logger():
 
+    global LOGGER
+
     log_format = logging.Formatter(
         "[%(asctime)s] [%(levelname)s] [%(name)s -> %(funcName)s] %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
@@ -195,6 +199,8 @@ def init_logger():
         terminal_handler = logging.StreamHandler(sys.stdout)
         terminal_handler.setFormatter(log_format)
         root_logger.addHandler(terminal_handler)
+
+    LOGGER = logging.getLogger(f"{__file__}.{__name__}")
 
 
 # Создание и настройка "сетевых" уровней
@@ -302,6 +308,7 @@ def generate_signature(status):
 
     global SIGN_PRIVATE_KEY
     global SIGN_PUBLIC_KEY
+    global TRANSITIONAL_LEVEL
 
     # файл нашей подписи есть
     if os.path.exists(SIGN_PRIVATE_FILE_PATH):
@@ -323,6 +330,8 @@ def generate_signature(status):
 
             SIGN_PUBLIC_KEY = SIGN_PRIVATE_KEY.public_key()
 
+            TRANSITIONAL_LEVEL.SIGN_PRIVATE_KEY = SIGN_PRIVATE_KEY
+
             return
 
         else:
@@ -334,6 +343,7 @@ def generate_signature(status):
 
     SIGN_PRIVATE_KEY = ec.generate_private_key(ec.SECP256R1())
     SIGN_PUBLIC_KEY = SIGN_PRIVATE_KEY.public_key()
+    TRANSITIONAL_LEVEL.SIGN_PRIVATE_KEY = SIGN_PRIVATE_KEY
 
     # Сохранение приватного ключа в файл в зашифрованном виде
 
@@ -355,17 +365,15 @@ def node_id_exchange(status):
 
     # Передача друг другу Node ID
     # Ожидаем NODE ID собеседника
+    status.update("[!] Signatures: [yellow]Send node id...[/yellow]")
+    LOGGER.info("Signatures: Send node id...")
+    APPLICATION_LEVEL.send_my_node_id(NODE_ID)
     status.update("[!] Signatures: [yellow]Waiting for companion node id...[/yellow]")
-    TIMER_EXCHANGE = 15.0
+    LOGGER.info("Signatures: Waiting for companion node id...")
     while not COMPANION_NODE_ID:
-        # !!!!!!!! нужно сделать так чтобы если долго не приходит то отправить заново свой и ждать. нужно сделать так везде во всех while
-        if TIMER_EXCHANGE >= 15.0:
-            status.update("[!] Signatures: [yellow]Send node id...[/yellow]")
-            APPLICATION_LEVEL.send_my_node_id(NODE_ID)
-            TIMER_EXCHANGE = 0.0
-            status.update("[!] Signatures: [yellow]Waiting for companion node id...[/yellow]")
         time.sleep(0.1)
-        TIMER_EXCHANGE += 0.1
+    status.update("[!] Signatures: [yellow]Companion node id received![/yellow]")
+    LOGGER.info("Signatures: Companion node id received!")
 
 
 # Проверка существования цифровой подписи собеседника и обмен ею
@@ -378,28 +386,27 @@ def check_and_exchange_companion_sign(status):
 
     try:
 
+        status.update("[!] Signatures: [yellow]Send signature...[/yellow]")
+        LOGGER.info("Signatures: Send signature...")
         my_sign_public_bytes_X962 = get_key_bytes_X962(SIGN_PUBLIC_KEY)
-
+        APPLICATION_LEVEL.send_my_sign(my_sign_public_bytes_X962)
         status.update("[!] Signatures: [yellow]Waiting for companion signature...[/yellow]")
-        TIMER_EXCHANGE = 15.0
+        LOGGER.info("Signatures: Waiting for companion signature...")
         while not COMPANION_SIGN:
-            # !!!!!!!! нужно сделать так чтобы если долго не приходит то отправить заново свой и ждать. нужно сделать так везде во всех while
-            if TIMER_EXCHANGE >= 15.0:
-                status.update("[!] Signatures: [yellow]Send signature...[/yellow]")
-                APPLICATION_LEVEL.send_my_sign(my_sign_public_bytes_X962)
-                TIMER_EXCHANGE = 0.0
-                status.update("[!] Signatures: [yellow]Waiting for companion signature...[/yellow]")
             time.sleep(0.1)
-            TIMER_EXCHANGE += 0.1
+        status.update("[!] Signatures: [yellow]Companion signature received![/yellow]")
+        LOGGER.info("Signatures: Companion signature received!")
 
         # Затем сравнение с тем, что в файле
         COMPANION_SIGN_FILE_PATH = os.path.join(KNOWN_NODES_DIR_PATH, COMPANION_NODE_ID)
         if os.path.exists(COMPANION_SIGN_FILE_PATH):
             status.update("[!] Signatures: [yellow]Сompanion signature exists[/yellow]")
+            LOGGER.info("Signatures: Сompanion signature exists")
 
             # Читаем из файла подпись
             try:
                 status.update("[!] Signatures: [yellow]Reading companion signature from file...[/yellow]")
+                LOGGER.info("Signatures: Reading companion signature from file...")
                 file_comp_sign_public_bytes_X962 = read_encrypted_file(COMPANION_SIGN_FILE_PATH, USER_PASSWORD)
                 comp_sign_public_bytes_X962 = get_key_bytes_X962(COMPANION_SIGN)
 
@@ -407,6 +414,7 @@ def check_and_exchange_companion_sign(status):
                     # если похожи то идем дальше
                     # Все норм они равны. Можем переходить к следующему этапу
                     status.update("[!] Signatures: [yellow]Companion signature exists[/yellow]")
+                    LOGGER.info("Signatures: Companion signature exists")
                     return
 
                 else:
@@ -414,9 +422,9 @@ def check_and_exchange_companion_sign(status):
                     pass
 
             except Exception as e:
-                print(e)
                 # Если ошибка то значит будем просить пользователя проверить и перезапишем файл
                 status.update("[!] Signatures: [red]Failed to read signature from file![/red]")
+                LOGGER.info(f"Signatures: Failed to read signature from file: {e}")
 
 
         # Если код продолжается то значит что нет файла,
@@ -426,6 +434,7 @@ def check_and_exchange_companion_sign(status):
 
         status.stop()
 
+        LOGGER.info("Signatures: user signatures check...")
         # Вывод подписи пользователя
         print_formatted_text(HTML(f'Your signature (show this to companion):\n| <ansiyellow>{get_firts_last_4_chars_sign(SIGN_PUBLIC_KEY)}</ansiyellow>\n'))
         # Вывод подписи собеседника
@@ -441,6 +450,7 @@ def check_and_exchange_companion_sign(status):
             # Зашифровываем публичную подпись собеседника паролем и сохраняем в файл
 
             status.update("[!] Signatures: [yellow]Save companion signature in file...[/yellow]")
+            LOGGER.info("Signatures: Save companion signature in file...")
             comp_sign_public_bytes_X962 = get_key_bytes_X962(COMPANION_SIGN)
             encrypt_write_file(COMPANION_SIGN_FILE_PATH, USER_PASSWORD, comp_sign_public_bytes_X962)
 
@@ -450,7 +460,6 @@ def check_and_exchange_companion_sign(status):
             raise TypeError("do not trust the signature")
 
     finally:
-        TRANSITIONAL_LEVEL.SIGN_PRIVATE_KEY = SIGN_PRIVATE_KEY
         TRANSITIONAL_LEVEL.COMPANION_SIGN_PUBLIC_KEY = COMPANION_SIGN # обновляем подпись собеседника
         TRANSITIONAL_LEVEL.DO_SIGN = True # ОБЯЗАТЕЛЬНО!!! Так как теперь используется подпись
 
@@ -460,6 +469,7 @@ def generate_and_exchange_ecc_keys(status):
 
     # Генерация пары ключей
     status.update("[!] Encryption: [yellow]Generate keys...[/yellow]")
+    LOGGER.info("Encryption: Generate keys...")
     MY_PRIVATE_KEY = ec.generate_private_key(ec.SECP256R1())
     my_public_key = MY_PRIVATE_KEY.public_key()
     my_pkey_bytes = my_public_key.public_bytes(
@@ -469,18 +479,21 @@ def generate_and_exchange_ecc_keys(status):
 
     # Передача публичного ключа
     # Ожидаем публичный ключ от собеседника
-    TIMER_EXCHANGE = 15.0
+    status.update("[!] Encryption: [yellow]Send public key...[/yellow]")
+    LOGGER.info("Encryption: Send public key...")
+    APPLICATION_LEVEL.send_my_public_key(my_pkey_bytes)
+
+    status.update("[!] Encryption: [yellow]Waiting for companion public key...[/yellow]")
+    LOGGER.info("Encryption: Waiting for companion public key...")
     while not COMPANION_PUBLIC_KEY:
-        if TIMER_EXCHANGE >= 15.0:
-            status.update("[!] Encryption: [yellow]Send public key...[/yellow]")
-            APPLICATION_LEVEL.send_my_public_key(my_pkey_bytes)
-            TIMER_EXCHANGE = 0.0
-            status.update("[!] Encryption: [yellow]Waiting for companion public key...[/yellow]")
         time.sleep(0.1)
-        TIMER_EXCHANGE += 0.1
+
+    status.update("[!] Encryption: [yellow]Companion public key received![/yellow]")
+    LOGGER.info("Encryption: Companion public key received!")
 
     # Вычисление симетричного ключа
     status.update("[!] Encryption: [yellow]Symmetric key computation...[/yellow]")
+    LOGGER.info("Encryption: Symmetric key computation...")
     AES_KEY = MY_PRIVATE_KEY.exchange(ec.ECDH(), COMPANION_PUBLIC_KEY)
 
     PRESENTATION_LEVEL.DO_ENCRYPT = True
