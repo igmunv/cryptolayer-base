@@ -106,7 +106,7 @@ class Transport(Base):
                 self.WAITING_STREAMS[packet.stream_id] = {"count": packet.chunk_count, "packets": []}
             self.WAITING_STREAMS[packet.stream_id]["packets"].append({"chunk_id": packet.chunk_id, "payload": packet.payload})
 
-            self.logger.info(f"stream {packet.stream_id}: {len(self.WAITING_STREAMS[packet.stream_id]["packets"])} packet of {self.WAITING_STREAMS[packet.stream_id]["count"]}")
+            self.logger.info(f"stream {packet.stream_id}: {len(self.WAITING_STREAMS[packet.stream_id]['packets'])} packet of {self.WAITING_STREAMS[packet.stream_id]['count']}")
 
             # Отправка подтверждения о получении пакета
             self.send_acknowledgment(data)
