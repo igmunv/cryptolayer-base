@@ -38,14 +38,14 @@ class Base:
 
     # PUBLIC фунция: её вызывает верхний уровень: отправь эти данные
     def send(self, data):
-        self.logger.info(f"size: {len(data)}, data: {data}")
+        self.logger.info(f"size: {len(data)}")
         with self.PEND_SEND_BUF_LOCK:
             self.PENDING_SEND_BUF.append(data)
 
 
     # PUBLIC фунция: её вызывает нижний уровень: получай эти данные
     def receive(self, data):
-        self.logger.info(f"size: {len(data)}, data: {data}")
+        self.logger.info(f"size: {len(data)}")
         with self.PEND_PROC_BUF_LOCK:
             self.PENDING_PROCESSING_BUF.append(data)
 
@@ -56,7 +56,7 @@ class Base:
             with self.PEND_PROC_BUF_LOCK:
                 if self.PENDING_PROCESSING_BUF:
                     data = self.PENDING_PROCESSING_BUF[0]
-                    self.logger.info(f"size: {len(data)}, data: {data}")
+                    self.logger.info(f"size: {len(data)}")
                     self.rworker(data)
                     del self.PENDING_PROCESSING_BUF[0]
             time.sleep(0.1)
@@ -73,7 +73,7 @@ class Base:
             with self.PEND_SEND_BUF_LOCK:
                 if self.PENDING_SEND_BUF:
                     data = self.PENDING_SEND_BUF[0]
-                    self.logger.info(f"size: {len(data)}, data: {data}")
+                    self.logger.info(f"size: {len(data)}")
                     self.sworker(data)
                     del self.PENDING_SEND_BUF[0]
             time.sleep(0.1)
