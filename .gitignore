@@ -1,8 +1,22 @@
-*.drawio.bkp
-data/
-**/__pycache__/
-*.pyc
-*.kate-swp
+# draw io
+
+**.drawio.bkp
 **.drawio.bkp
 **.drawio.dtmp
+
+# CryptoLayer data dir
+
+**/data/
+
+# python
+
+**/__pycache__/
+**.pyc
+
+# logs
+
 **.log
+
+# editor
+
+**.kate-swp

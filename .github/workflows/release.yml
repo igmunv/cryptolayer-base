@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create Archives
+        run: |
+
+          RELEASE_NAME="CryptoLayer-${{ github.ref_name }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            RELEASE_NAME="manual-build"
+          fi
+
+          cp requirements.txt src/
+          cd src
+
+          zip -r "../${RELEASE_NAME}.zip" .
+          tar -czf "../${RELEASE_NAME}.tar.gz" .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: Release ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            *.zip
+            *.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
