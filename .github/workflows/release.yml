@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - 'v*.*.*'
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -18,17 +17,14 @@ jobs:
 
       - name: Create Archives
         run: |
-
           RELEASE_NAME="CryptoLayer-${{ github.ref_name }}"
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            RELEASE_NAME="manual-build"
-          fi
 
           cp requirements.txt src/
-          cd src
 
-          zip -r "../${RELEASE_NAME}.zip" .
-          tar -czf "../${RELEASE_NAME}.tar.gz" .
+          mv src "$RELEASE_NAME"
+
+          zip -r "${RELEASE_NAME}.zip" "$RELEASE_NAME"
+          tar -czf "${RELEASE_NAME}.tar.gz" "$RELEASE_NAME"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
