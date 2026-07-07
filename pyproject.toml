@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cryptolayer-base"
+version = "1.0.0"
+description = "Cryptographic layer for messengers"
+dependencies = [
+    "prompt_toolkit",
+    "vk_api",
+    "colorama",
+    "rich",
+    "cryptography"
+]
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]
