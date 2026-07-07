@@ -74,3 +74,9 @@ class BaseModule:
 
     def get_exp_creds(self):
         return self.expected_credentials
+
+    def get_creds(self):
+        ret = []
+        for cred in self.expected_credentials:
+            ret.append({cred.name: cred.description})
+        return ret

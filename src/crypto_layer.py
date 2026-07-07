@@ -4,17 +4,6 @@ import time
 import os
 import uuid
 import logging
-import getpass
-
-from prompt_toolkit import PromptSession
-from prompt_toolkit.patch_stdout import patch_stdout
-from prompt_toolkit import HTML
-from prompt_toolkit import print_formatted_text
-from prompt_toolkit.styles import Style
-
-from colorama import Fore, Style as ColoramaStyle
-
-from rich.console import Console
 
 from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives import serialization, hashes
@@ -30,644 +19,480 @@ from levels.transport import Transport
 from levels.transitional import Transitional
 from levels.base import Base
 
-from config import *
+import config
+
+from UIProvider import UIProvider
 
 
-pt_session = PromptSession()
-console = Console()
-
-# Мессенджер
-MODULE_CLASS = None
-MODULE_CLASS_SEND = None
-
-# ID собеседника в мессенджере
-COMPANION_ID = None
-
-# ID текущего узла
-NODE_ID = None
-
-# Цифровая подпись
-# Приватный ключ
-SIGN_PRIVATE_KEY = None
-# Публичный ключ
-SIGN_PUBLIC_KEY = None
-
-# Приватный ключ для ECC
-MY_PRIVATE_KEY = None
-
-# Ключ шифрования AES
-AES_KEY = None
-
-# NODE ID собеседника
-COMPANION_NODE_ID = None
-
-# подпись собеседника
-COMPANION_SIGN = None
-
-# собеседник готов использовать подписи
-COMPANION_READY_USE_SIGN = False
-
-# ECC public key собеседника
-COMPANION_PUBLIC_KEY = None
-
-# Пароль пользователя
-USER_PASSWORD = None
-
-# Уровни
-TRANSITIONAL_LEVEL = None
-TRANSPORT_LEVEL = None
-PRESENTATION_LEVEL = None
-APPLICATION_LEVEL = None
-
-TRANSITIONAL_LEVEL_INGESTER = None
-
-LOGGER = None
+class CryptoLayer:
 
 
-# Точка входа
-def main():
+    def __init__(self, ui_provider: UIProvider, data_dir: str):
 
-    try:
+        self.ui_provider = ui_provider
+        self.data_dir = data_dir
 
-        init()
+        # Пути к файлам
+        self.KNOWN_NODES_DIR_PATH = os.path.join(data_dir, config.KNOWN_NODES_DIR_NAME)
+        self.NODE_ID_FILE_PATH = os.path.join(data_dir, config.NODE_ID_FILE_NAME)
+        self.SIGN_PRIVATE_FILE_PATH = os.path.join(data_dir, config.SIGN_PRIVATE_FILE_NAME)
+        self.LOGS_FILE_PATH = os.path.join(data_dir, config.LOGS_FILE_NAME)
 
-        # здесь мы уже можем отправлять сообщения
-        print_formatted_text(HTML(f'\n---------------------\n'))
-        sender_text_box()
+        # Логирование
+        self.LOGGER = logging.getLogger(f"{self.__class__.__module__}.{self.__class__.__name__}")
 
-    except KeyboardInterrupt:
-        print_formatted_text(HTML(f'\n---------------------\n'))
-        console.print("\n[+] KeyboardInterrupt: [green]Done[/green]")
+        # Модуль
+        self.MODULE_CLASS = None
+        self.MODULE_CLASS_SEND = None
 
-    finally:
+        # ID собеседника в мессенджере
+        self.COMPANION_ID = None
 
-        console.print("[!] Crypto Layer: [yellow]Shutting down...[/yellow]")
+        # ID текущего узла
+        self.NODE_ID = None
 
-        Base.stop_event.set()
-        BaseModule.stop_event.set()
+        # Цифровая подпись
+        # Приватный ключ
+        self.SIGN_PRIVATE_KEY = None
+        # Публичный ключ
+        self.SIGN_PUBLIC_KEY = None
 
-        main_thread = threading.main_thread()
-        for thread in threading.enumerate():
-            if thread is not main_thread:
-                thread.join()
+        # Приватный ключ для ECC
+        self.MY_PRIVATE_KEY = None
 
-        console.print("[+] Crypto Layer: [green]Bye![/green]")
+        # Ключ шифрования AES
+        self.AES_KEY = None
+
+        # NODE ID собеседника
+        self.COMPANION_NODE_ID = None
+
+        # подпись собеседника
+        self.COMPANION_SIGN = None
+
+        # ECC public key собеседника
+        self.COMPANION_PUBLIC_KEY = None
+
+        # Пароль пользователя
+        self.USER_PASSWORD = None
+
+        # Уровни
+        self.TRANSITIONAL_LEVEL = None
+        self.TRANSPORT_LEVEL = None
+        self.PRESENTATION_LEVEL = None
+        self.APPLICATION_LEVEL = None
+
+        # Функция принимающая данные от мессенджера
+        self.TRANSITIONAL_LEVEL_INGESTER = None
 
 
-# Инциализация Crypto Layer
-def init():
+    def init(self):
 
-    global USER_PASSWORD
+        # Спрашиваем пароль
+        upass = self.ui_provider.request_password("Your password")
+        self.USER_PASSWORD = bytearray(upass.encode('utf-8'))
+        del upass
 
-    # Спрашиваем пароль
-    upass = getpass.getpass("Your password: ")
-    USER_PASSWORD = bytearray(upass.encode('utf-8'))
-    del upass
+        # Создаем директорию с данными
+        os.makedirs(self.data_dir, exist_ok=True)
+        os.makedirs(self.KNOWN_NODES_DIR_PATH, exist_ok=True)
 
-    # Создаем директорию с данными
-    os.makedirs(DATA_DIR_PATH, exist_ok=True)
-    os.makedirs(KNOWN_NODES_DIR_PATH, exist_ok=True)
+        # инциализация уровней
+        self.init_levels()
 
-    # инциализация логера
-    init_logger()
+        # Настройка модуля
+        self.init_module()
 
-    # инциализация уровней
-    init_levels()
+        # Работа с подписями
+        self.signatures_setup()
 
-    # Настройка мессенджера
-    messenger_config()
+        # Ключи шифрования
+        self.generate_and_exchange_ecc_keys()
 
-    # - - РАБОТА С ПОДПИСЯМИ - -
+        # удаление пароля из RAM
+        self.remove_password_from_ram()
 
-    with console.status("[!] Signatures: [yellow]Loading...[/yellow]") as status:
+        self.ui_provider.on_ready()
+
+
+    def init_levels(self):
+
+        self.ui_provider.update_status("Levels", "Loading...", "in_progress")
+
+        self.APPLICATION_LEVEL = Application()
+        self.PRESENTATION_LEVEL = Presentation()
+        self.TRANSPORT_LEVEL = Transport()
+        self.TRANSITIONAL_LEVEL = Transitional()
+        self.TRANSITIONAL_LEVEL_INGESTER = self.TRANSITIONAL_LEVEL.receive
+
+        self.ui_provider.update_status("Levels", "Level class objects created", "in_progress")
+
+        self.APPLICATION_LEVEL.update_levels(self, self.PRESENTATION_LEVEL)
+        self.PRESENTATION_LEVEL.update_levels(self.APPLICATION_LEVEL, self.TRANSPORT_LEVEL)
+        self.TRANSPORT_LEVEL.update_levels(self.PRESENTATION_LEVEL, self.TRANSITIONAL_LEVEL)
+
+        self.ui_provider.update_status("Levels", "Done", "success")
+
+
+    def init_module(self):
+
+        self.ui_provider.update_status("Module", "Loading...", "in_progress")
+
+        # Выбор мессенджера
+        module_manager.load()
+        selected_module_index = self.ui_provider.select_module(module_manager.get_modules())
+        self.MODULE_CLASS = module_manager.get_module_by_index(selected_module_index)
+
+        # ID собеседника
+        self.COMPANION_ID = self.ui_provider.request_data("Companion ID (in module)", str)
+
+        # Спрашиваем у пользователя Credentials
+        creds = self.ui_provider.get_credentials(self.MODULE_CLASS.get_creds())
+
+        # Создаем сессию в модуле мессенджера
+        self.MODULE_CLASS.create_session(creds, self.TRANSITIONAL_LEVEL_INGESTER, self.COMPANION_ID)
+        self.TRANSITIONAL_LEVEL.update_levels(self.TRANSPORT_LEVEL, self.MODULE_CLASS.sender)
+
+
+    def signatures_setup(self):
+
+        self.ui_provider.update_status("Signatures", "Loading...", "in_progress")
 
         # Генерация ID узла
-        generate_node_id()
+        self.generate_node_id()
 
         # Чтение или генерация цифровой подписи данного узла
-        generate_signature(status)
+        self.generate_signature()
 
         # Обмен ID узлов
-        node_id_exchange(status)
+        self.node_id_exchange()
 
         # Проверка существования цифровой подписи собеседника
         # Передача цифровой подписи
         # Затем спрашиваем у пользователя доверяем ли этой подписи, показывая первые 4 символа, и последние
-        check_and_exchange_companion_sign(status)
+        self.check_and_exchange_companion_sign()
 
-    console.print("[+] Signatures: [green]Done[/green]")
-
-    # удалить пароль пользователя из памяти, так как он уже не нужен
-    remove_password_from_ram()
-
-    # - - РАБОТА С КЛЮЧАМИ ШИФРОВАНИЯ - -
-
-    with console.status("[!] Encryption: [yellow]Loading...[/yellow]") as status:
-
-        # Генерация и обмен публичными ключами ECC
-        generate_and_exchange_ecc_keys(status)
-
-    console.print("[+] Encryption: [green]Done[/green]")
-
-    # Может сделать отправку служебного сообщения, которое говорит о том что мы готовы к передаче. Это сообщение передается уже зашифрованым
+        self.ui_provider.update_status("Signatures", "Done", "success")
 
 
-# Инциализация логирования
-def init_logger():
+    # Генерация или получение ID узла
+    def generate_node_id(self):
 
-    global LOGGER
+        # Попытка прочитать ID
 
-    log_format = logging.Formatter(
-        "[%(asctime)s] [%(levelname)s] [%(name)s -> %(funcName)s] %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
+        if os.path.exists(self.NODE_ID_FILE_PATH):
+            node_id_file_content = open(self.NODE_ID_FILE_PATH, encoding="utf-8").read().strip()
+            if len(node_id_file_content) >= 64:
+                self.NODE_ID = node_id_file_content
+                return
 
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.INFO)
-    root_logger.handlers.clear()
+        # Генерация ID
+        new_node_id = ""
+        for i in range(2):
+            random_id = uuid.uuid4()
+            new_node_id += random_id.hex
 
-    # вывод логов в файл
-    if LOGS_TO_FILE:
-        file_handler = logging.FileHandler(
-            LOGS_FILE_PATH, encoding="utf-8", mode="w"
+        with open(self.NODE_ID_FILE_PATH, "w", encoding="utf-8") as f:
+            f.write(new_node_id)
+
+        self.NODE_ID = new_node_id
+
+
+    # Генерация или получение цифровой подписи данного узла
+    def generate_signature(self):
+
+        # файл нашей подписи есть
+        if os.path.exists(self.SIGN_PRIVATE_FILE_PATH):
+
+            self.ui_provider.update_status("Signatures", "Our signature file exists", "in_progress")
+
+            with open(self.SIGN_PRIVATE_FILE_PATH, "rb") as f:
+                loaded_pem_data = f.read()
+
+            # если файл не пустой
+            if loaded_pem_data:
+
+                self.ui_provider.update_status("Signatures", "Signature file not empty. Use this signature", "in_progress")
+
+                self.SIGN_PRIVATE_KEY = serialization.load_pem_private_key(
+                    loaded_pem_data,
+                    password=bytes(self.USER_PASSWORD)
+                )
+
+                self.SIGN_PUBLIC_KEY = self.SIGN_PRIVATE_KEY.public_key()
+
+                self.TRANSITIONAL_LEVEL.SIGN_PRIVATE_KEY = self.SIGN_PRIVATE_KEY
+
+                return
+
+            else:
+                self.ui_provider.update_status("Signatures", "Signature file empty", "in_progress")
+
+
+        # ... генерация
+        self.ui_provider.update_status("Signatures", "Generate new our signature...", "in_progress")
+
+        self.SIGN_PRIVATE_KEY = ec.generate_private_key(ec.SECP256R1())
+        self.SIGN_PUBLIC_KEY = self.SIGN_PRIVATE_KEY.public_key()
+        self.TRANSITIONAL_LEVEL.SIGN_PRIVATE_KEY = self.SIGN_PRIVATE_KEY
+
+        # Сохранение приватного ключа в файл в зашифрованном виде
+
+        pem_private_data = self.SIGN_PRIVATE_KEY.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.BestAvailableEncryption(bytes(self.USER_PASSWORD))
         )
-        file_handler.setFormatter(log_format)
-        root_logger.addHandler(file_handler)
 
-    # вывод логов в терминал
-    if PRINT_LOGS:
-        terminal_handler = logging.StreamHandler(sys.stdout)
-        terminal_handler.setFormatter(log_format)
-        root_logger.addHandler(terminal_handler)
+        self.ui_provider.update_status("Signatures", "Write new signature in file", "in_progress")
 
-    LOGGER = logging.getLogger(f"{__file__}.{__name__}")
+        # Записываем байты в файл
+        with open(self.SIGN_PRIVATE_FILE_PATH, "wb") as f:
+            f.write(pem_private_data)
 
 
-# Создание и настройка "сетевых" уровней
-def init_levels():
+    # Обмен ID узлов
+    def node_id_exchange(self):
 
-    global TRANSITIONAL_LEVEL
-    global TRANSPORT_LEVEL
-    global PRESENTATION_LEVEL
-    global APPLICATION_LEVEL
-
-    global TRANSITIONAL_LEVEL_INGESTER
-
-    with console.status("[!] Levels: [yellow]Loading...[/yellow]") as status:
-
-        APPLICATION_LEVEL = Application()
-        PRESENTATION_LEVEL = Presentation()
-        TRANSPORT_LEVEL = Transport()
-        TRANSITIONAL_LEVEL = Transitional()
-        TRANSITIONAL_LEVEL_INGESTER = TRANSITIONAL_LEVEL.receive
-
-        status.update("[!] Levels: [yellow]Level class objects created[/yellow]")
-
-        APPLICATION_LEVEL.update_levels(sys.modules[__name__], PRESENTATION_LEVEL)
-        PRESENTATION_LEVEL.update_levels(APPLICATION_LEVEL, TRANSPORT_LEVEL)
-        TRANSPORT_LEVEL.update_levels(PRESENTATION_LEVEL, TRANSITIONAL_LEVEL)
-
-    console.print("[+] Levels: [green]Done[/green]")
+        # Передача друг другу Node ID
+        # Ожидаем NODE ID собеседника
+        self.ui_provider.update_status("Signatures", "Send node id...", "in_progress")
+        self.LOGGER.info("Signatures: Send node id...")
+        self.APPLICATION_LEVEL.send_my_node_id(self.NODE_ID)
+        self.ui_provider.update_status("Signatures", "Waiting for companion node id...", "in_progress")
+        self.LOGGER.info("Signatures: Waiting for companion node id...")
+        while not self.COMPANION_NODE_ID:
+            time.sleep(0.1)
+        self.ui_provider.update_status("Signatures", "Companion node id received!", "in_progress")
+        self.LOGGER.info("Signatures: Companion node id received!")
 
 
-# Конфигурация мессенджера
-def messenger_config():
+    # Проверка существования цифровой подписи собеседника и обмен ею
+    def check_and_exchange_companion_sign(self):
 
-    global COMPANION_ID
-    global MODULE_CLASS
-    global TRANSITIONAL_LEVEL_INGESTER
+        # Отправка своей подписи
+        # Ожидание подписи собеседника
 
-    # Выбор мессенджера
-    module_manager.load()
+        try:
+            self.ui_provider.update_status("Signatures", "Send signature...", "in_progress")
+            self.LOGGER.info("Signatures: Send signature...")
+            my_sign_public_bytes_X962 = self.get_key_bytes_X962(self.SIGN_PUBLIC_KEY)
+            self.APPLICATION_LEVEL.send_my_sign(my_sign_public_bytes_X962)
+            self.ui_provider.update_status("Signatures", "Waiting for companion signature...", "in_progress")
+            self.LOGGER.info("Signatures: Waiting for companion signature...")
+            while not self.COMPANION_SIGN:
+                time.sleep(0.1)
+            self.ui_provider.update_status("Signatures", "Companion signature received!", "in_progress")
+            self.LOGGER.info("Signatures: Companion signature received!")
 
-    print_formatted_text(HTML(f'\n - - Modules (Messengers) - -'))
-    print_formatted_text(HTML(f'{module_manager.get_modules_string()}'))
-    while True:
-        messenger_index = input(f'Choice module: {Fore.GREEN}').strip()
-        print(ColoramaStyle.RESET_ALL, end="")
-        if not messenger_index.isdigit():
-            error("Enter a number!")
-            continue
-        messenger_index = int(messenger_index)
-        MODULE_CLASS = module_manager.get_module_by_index(messenger_index)
-        if not MODULE_CLASS:
-            error("Selected messenger does not exist!")
-            continue
-        break
+            # Затем сравнение с тем, что в файле
+            COMPANION_SIGN_FILE_PATH = os.path.join(self.KNOWN_NODES_DIR_PATH, self.COMPANION_NODE_ID)
+            if os.path.exists(COMPANION_SIGN_FILE_PATH):
+                self.ui_provider.update_status("Signatures", "Сompanion signature exists", "in_progress")
+                self.LOGGER.info("Signatures: Сompanion signature exists")
 
-    # ID собеседника
-    COMPANION_ID = input(f'Companion ID (in module): {Fore.GREEN}').strip()
-    print(ColoramaStyle.RESET_ALL, end="")
+                # Читаем из файла подпись
+                try:
+                    self.ui_provider.update_status("Signatures", "Reading companion signature from file...", "in_progress")
+                    self.LOGGER.info("Signatures: Reading companion signature from file...")
+                    file_comp_sign_public_bytes_X962 = self.read_encrypted_file(COMPANION_SIGN_FILE_PATH, self.USER_PASSWORD)
+                    comp_sign_public_bytes_X962 = self.get_key_bytes_X962(self.COMPANION_SIGN)
 
-    # Спрашиваем у пользователя Credentials
-    creds = []
-    print_formatted_text(HTML(f'\n - - Credentials - -\n'))
-    all_module_creds = MODULE_CLASS.get_exp_creds()
-    for n, cred in enumerate(all_module_creds):
-        if len(all_module_creds) > 1:
-            print_formatted_text(HTML(f"{n+1}/{len(all_module_creds)}. '{cred.name}' - {cred.description}"))
-        else:
-            print_formatted_text(HTML(f"'{cred.name}' - {cred.description}"))
-        user_cred = getpass.getpass(f'{cred.name}: ').strip()
-        print(ColoramaStyle.RESET_ALL, end="")
-        print()
-        creds.append(user_cred)
+                    if file_comp_sign_public_bytes_X962 == comp_sign_public_bytes_X962:
+                        # если похожи то идем дальше
+                        # Все норм они равны. Можем переходить к следующему этапу
+                        self.ui_provider.update_status("Signatures", "Companion signature exists", "in_progress")
+                        self.LOGGER.info("Signatures: Companion signature exists")
+                        return
 
-    # Создаем сессию в модуле мессенджера
-    MODULE_CLASS.create_session(creds, TRANSITIONAL_LEVEL_INGESTER, COMPANION_ID)
-    TRANSITIONAL_LEVEL.update_levels(TRANSPORT_LEVEL, MODULE_CLASS.sender)
+                    else:
+                        # не совпадают
+                        pass
 
-
-# Генерация или получение ID узла
-def generate_node_id():
-
-    global NODE_ID
-
-    # Попытка прочитать ID
-
-    if os.path.exists(NODE_ID_FILE_PATH):
-        node_id_file_content = open(NODE_ID_FILE_PATH, encoding="utf-8").read().strip()
-        if len(node_id_file_content) >= 64:
-            NODE_ID = node_id_file_content
-            return
-
-    # Генерация ID
-    new_node_id = ""
-    for i in range(2):
-        random_id = uuid.uuid4()
-        new_node_id += random_id.hex
-
-    with open(NODE_ID_FILE_PATH, "w", encoding="utf-8") as f:
-        f.write(new_node_id)
-
-    NODE_ID = new_node_id
+                except Exception as e:
+                    # Если ошибка то значит будем просить пользователя проверить и перезапишем файл
+                    self.ui_provider.update_status("Signatures", "Failed to read signature from file!", "in_progress")
+                    self.LOGGER.info(f"Signatures: Failed to read signature from file: {e}")
 
 
-# Генерация или получение цифровой подписи данного узла
-def generate_signature(status):
+            # Если код продолжается то значит что нет файла,
+            # Либо в файле лежит что-то другое,
+            # Либо подпись в файле не совпадает с полученной:
+            # - просим пользователя проверить подпись
 
-    global SIGN_PRIVATE_KEY
-    global SIGN_PUBLIC_KEY
-    global TRANSITIONAL_LEVEL
+            self.LOGGER.info("Signatures: user signatures check...")
 
-    # файл нашей подписи есть
-    if os.path.exists(SIGN_PRIVATE_FILE_PATH):
+            # Проверка подписи собеседника пользователем
+            if self.ui_provider.check_signatures(self.get_firts_last_4_chars_sign(self.SIGN_PUBLIC_KEY), self.get_firts_last_4_chars_sign(self.COMPANION_SIGN)):
 
-        status.update("[!] Signatures: [yellow]Our signature file exists[/yellow]")
+                # Доверяем, записываем, используем эту подпись
 
-        with open(SIGN_PRIVATE_FILE_PATH, "rb") as f:
-            loaded_pem_data = f.read()
+                # Зашифровываем публичную подпись собеседника паролем и сохраняем в файл
 
-        # если файл не пустой
-        if loaded_pem_data:
+                self.ui_provider.update_status("Signatures", "Save companion signature in file...", "in_progress")
+                self.LOGGER.info("Signatures: Save companion signature in file...")
+                comp_sign_public_bytes_X962 = self.get_key_bytes_X962(self.COMPANION_SIGN)
+                self.encrypt_write_file(COMPANION_SIGN_FILE_PATH, self.USER_PASSWORD, comp_sign_public_bytes_X962)
 
-            status.update("[!] Signatures: [yellow]Signature file not empty. Use this signature[/yellow]")
 
-            SIGN_PRIVATE_KEY = serialization.load_pem_private_key(
-                loaded_pem_data,
-                password=bytes(USER_PASSWORD)
+            else:
+                raise TypeError("do not trust the signature")
+
+        finally:
+            self.TRANSITIONAL_LEVEL.COMPANION_SIGN_PUBLIC_KEY = self.COMPANION_SIGN # обновляем подпись собеседника
+            self.TRANSITIONAL_LEVEL.DO_SIGN = True # ОБЯЗАТЕЛЬНО!!! Так как теперь используется подпись
+
+
+    # Генерация и обмен публичными ключами, вычисление симметриного ключа
+    def generate_and_exchange_ecc_keys(self):
+
+        # Генерация пары ключей
+        self.ui_provider.update_status("Encryption", "Generate keys...", "in_progress")
+        self.LOGGER.info("Encryption: Generate keys...")
+        self.MY_PRIVATE_KEY = ec.generate_private_key(ec.SECP256R1())
+        my_public_key = self.MY_PRIVATE_KEY.public_key()
+        my_pkey_bytes = my_public_key.public_bytes(
+                encoding=serialization.Encoding.X962,
+                format=serialization.PublicFormat.CompressedPoint
             )
 
-            SIGN_PUBLIC_KEY = SIGN_PRIVATE_KEY.public_key()
+        # Передача публичного ключа
+        # Ожидаем публичный ключ от собеседника
+        self.ui_provider.update_status("Encryption", "Send public key...", "in_progress")
+        self.LOGGER.info("Encryption: Send public key...")
+        self.APPLICATION_LEVEL.send_my_public_key(my_pkey_bytes)
 
-            TRANSITIONAL_LEVEL.SIGN_PRIVATE_KEY = SIGN_PRIVATE_KEY
-
-            return
-
-        else:
-            status.update("[!] Signatures: [yellow]Signature file empty[/yellow]")
-
-
-    # ... генерация
-    status.update("[!] Signatures: [yellow]Generate new our signature...[/yellow]")
-
-    SIGN_PRIVATE_KEY = ec.generate_private_key(ec.SECP256R1())
-    SIGN_PUBLIC_KEY = SIGN_PRIVATE_KEY.public_key()
-    TRANSITIONAL_LEVEL.SIGN_PRIVATE_KEY = SIGN_PRIVATE_KEY
-
-    # Сохранение приватного ключа в файл в зашифрованном виде
-
-    pem_private_data = SIGN_PRIVATE_KEY.private_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.BestAvailableEncryption(bytes(USER_PASSWORD))
-    )
-
-    status.update("[!] Signatures: [yellow]Write new signature in file[/yellow]")
-
-    # Записываем байты в файл
-    with open(SIGN_PRIVATE_FILE_PATH, "wb") as f:
-        f.write(pem_private_data)
-
-
-# Обмен ID узлов
-def node_id_exchange(status):
-
-    # Передача друг другу Node ID
-    # Ожидаем NODE ID собеседника
-    status.update("[!] Signatures: [yellow]Send node id...[/yellow]")
-    LOGGER.info("Signatures: Send node id...")
-    APPLICATION_LEVEL.send_my_node_id(NODE_ID)
-    status.update("[!] Signatures: [yellow]Waiting for companion node id...[/yellow]")
-    LOGGER.info("Signatures: Waiting for companion node id...")
-    while not COMPANION_NODE_ID:
-        time.sleep(0.1)
-    status.update("[!] Signatures: [yellow]Companion node id received![/yellow]")
-    LOGGER.info("Signatures: Companion node id received!")
-
-
-# Проверка существования цифровой подписи собеседника и обмен ею
-def check_and_exchange_companion_sign(status):
-
-    global COMPANION_SIGN
-
-    # Отправка своей подписи
-    # Ожидание подписи собеседника
-
-    try:
-
-        status.update("[!] Signatures: [yellow]Send signature...[/yellow]")
-        LOGGER.info("Signatures: Send signature...")
-        my_sign_public_bytes_X962 = get_key_bytes_X962(SIGN_PUBLIC_KEY)
-        APPLICATION_LEVEL.send_my_sign(my_sign_public_bytes_X962)
-        status.update("[!] Signatures: [yellow]Waiting for companion signature...[/yellow]")
-        LOGGER.info("Signatures: Waiting for companion signature...")
-        while not COMPANION_SIGN:
+        self.ui_provider.update_status("Encryption", "Waiting for companion public key...", "in_progress")
+        self.LOGGER.info("Encryption: Waiting for companion public key...")
+        while not self.COMPANION_PUBLIC_KEY:
             time.sleep(0.1)
-        status.update("[!] Signatures: [yellow]Companion signature received![/yellow]")
-        LOGGER.info("Signatures: Companion signature received!")
 
-        # Затем сравнение с тем, что в файле
-        COMPANION_SIGN_FILE_PATH = os.path.join(KNOWN_NODES_DIR_PATH, COMPANION_NODE_ID)
-        if os.path.exists(COMPANION_SIGN_FILE_PATH):
-            status.update("[!] Signatures: [yellow]Сompanion signature exists[/yellow]")
-            LOGGER.info("Signatures: Сompanion signature exists")
+        self.ui_provider.update_status("Encryption", "Companion public key received!", "in_progress")
+        self.LOGGER.info("Encryption: Companion public key received!")
 
-            # Читаем из файла подпись
-            try:
-                status.update("[!] Signatures: [yellow]Reading companion signature from file...[/yellow]")
-                LOGGER.info("Signatures: Reading companion signature from file...")
-                file_comp_sign_public_bytes_X962 = read_encrypted_file(COMPANION_SIGN_FILE_PATH, USER_PASSWORD)
-                comp_sign_public_bytes_X962 = get_key_bytes_X962(COMPANION_SIGN)
+        # Вычисление симетричного ключа
+        self.ui_provider.update_status("Encryption", "Symmetric key computation...", "in_progress")
+        self.LOGGER.info("Encryption: Symmetric key computation...")
+        self.AES_KEY = self.MY_PRIVATE_KEY.exchange(ec.ECDH(), self.COMPANION_PUBLIC_KEY)
 
-                if file_comp_sign_public_bytes_X962 == comp_sign_public_bytes_X962:
-                    # если похожи то идем дальше
-                    # Все норм они равны. Можем переходить к следующему этапу
-                    status.update("[!] Signatures: [yellow]Companion signature exists[/yellow]")
-                    LOGGER.info("Signatures: Companion signature exists")
-                    return
+        self.ui_provider.update_status("Encryption", "Wait 3 sec for send public key without encryption...", "in_progress")
+        time.sleep(3)
 
-                else:
-                    # не совпадают
-                    pass
+        self.PRESENTATION_LEVEL.DO_ENCRYPT = True
+        self.PRESENTATION_LEVEL.AES_KEY = self.AES_KEY
 
-            except Exception as e:
-                # Если ошибка то значит будем просить пользователя проверить и перезапишем файл
-                status.update("[!] Signatures: [red]Failed to read signature from file![/red]")
-                LOGGER.info(f"Signatures: Failed to read signature from file: {e}")
+        self.ui_provider.update_status("Encryption", "Done", "success")
 
 
-        # Если код продолжается то значит что нет файла,
-        # Либо в файле лежит что-то другое,
-        # Либо подпись в файле не совпадает с полученной:
-        # - просим пользователя проверить подпись
-
-        status.stop()
-
-        LOGGER.info("Signatures: user signatures check...")
-        # Вывод подписи пользователя
-        print_formatted_text(HTML(f'Your signature (show this to companion):\n| <ansiyellow>{get_firts_last_4_chars_sign(SIGN_PUBLIC_KEY)}</ansiyellow>\n'))
-        # Вывод подписи собеседника
-        print_formatted_text(HTML(f'Companion signature (сheck for correctness):\n| <ansiyellow>{get_firts_last_4_chars_sign(COMPANION_SIGN)}</ansiyellow>\n'))
-        # Проверка подписи собеседника пользователем
-        if answer(f"Is the companion signature correct?"):
-
-            print()
-            status.start()
-
-            # Доверяем, записываем, используем эту подпись
-
-            # Зашифровываем публичную подпись собеседника паролем и сохраняем в файл
-
-            status.update("[!] Signatures: [yellow]Save companion signature in file...[/yellow]")
-            LOGGER.info("Signatures: Save companion signature in file...")
-            comp_sign_public_bytes_X962 = get_key_bytes_X962(COMPANION_SIGN)
-            encrypt_write_file(COMPANION_SIGN_FILE_PATH, USER_PASSWORD, comp_sign_public_bytes_X962)
+    # Отправка сообщения
+    def send(self, text):
+        self.APPLICATION_LEVEL.send_text(text)
 
 
-        else:
-            print()
-            raise TypeError("do not trust the signature")
-
-    finally:
-        TRANSITIONAL_LEVEL.COMPANION_SIGN_PUBLIC_KEY = COMPANION_SIGN # обновляем подпись собеседника
-        TRANSITIONAL_LEVEL.DO_SIGN = True # ОБЯЗАТЕЛЬНО!!! Так как теперь используется подпись
+    def receive_node_id(self, node_id: str):
+        self.COMPANION_NODE_ID = node_id
 
 
-# Генерация и обмен публичными ключами, вычисление симметриного ключа
-def generate_and_exchange_ecc_keys(status):
+    def receive_sign(self, sign: bytes):
+        self.COMPANION_SIGN = ec.EllipticCurvePublicKey.from_encoded_point(
+            ec.SECP256R1(),
+            sign
+        )
 
-    # Генерация пары ключей
-    status.update("[!] Encryption: [yellow]Generate keys...[/yellow]")
-    LOGGER.info("Encryption: Generate keys...")
-    MY_PRIVATE_KEY = ec.generate_private_key(ec.SECP256R1())
-    my_public_key = MY_PRIVATE_KEY.public_key()
-    my_pkey_bytes = my_public_key.public_bytes(
+
+    def receive_public_key(self, public_key: bytes):
+        self.COMPANION_PUBLIC_KEY = ec.EllipticCurvePublicKey.from_encoded_point(
+            ec.SECP256R1(),
+            public_key
+        )
+
+
+    def receive_text(self, text: str):
+        self.ui_provider.on_text_received(text)
+
+
+    def encrypt_write_file(self, filename, password, data):
+        salt = os.urandom(16)
+        hkdf = HKDF(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=salt,
+            info=b"public-key-encryption",
+        )
+        up_aes_key = hkdf.derive(password)
+
+        aesgcm = AESGCM(up_aes_key)
+        nonce = os.urandom(12)
+        encrypted_data = aesgcm.encrypt(nonce, data, associated_data=None)
+
+        with open(filename, "wb") as f:
+            f.write(salt + nonce + encrypted_data)
+
+
+    def read_encrypted_file(self, filename, password):
+        with open(filename, "rb") as f:
+            file_content = f.read()
+        return self.decrypt_data_AES(file_content, password)
+
+
+    def decrypt_data_AES(self, data, password):
+
+        salt = data[:16]
+        nonce = data[16:28]
+        encrypted_data = data[28:]
+
+        hkdf = HKDF(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=salt,
+            info=b"public-key-encryption",
+        )
+        up_aes_key = hkdf.derive(password)
+
+        aesgcm = AESGCM(up_aes_key)
+        return aesgcm.decrypt(nonce, encrypted_data, associated_data=None)
+
+
+    def load_key_from_X962_bytes(self, key_bytes):
+        return ec.EllipticCurvePublicKey.from_encoded_point(
+            curve=ec.SECP256R1(),
+            data=key_bytes
+        )
+
+
+    def get_key_bytes_X962(self, key):
+        return key.public_bytes(
             encoding=serialization.Encoding.X962,
             format=serialization.PublicFormat.CompressedPoint
         )
 
-    # Передача публичного ключа
-    # Ожидаем публичный ключ от собеседника
-    status.update("[!] Encryption: [yellow]Send public key...[/yellow]")
-    LOGGER.info("Encryption: Send public key...")
-    APPLICATION_LEVEL.send_my_public_key(my_pkey_bytes)
 
-    status.update("[!] Encryption: [yellow]Waiting for companion public key...[/yellow]")
-    LOGGER.info("Encryption: Waiting for companion public key...")
-    while not COMPANION_PUBLIC_KEY:
-        time.sleep(0.1)
+    # Удалить мастер пароль из памяти
+    def remove_password_from_ram(self):
+        for i in range(len(self.USER_PASSWORD)):
+            self.USER_PASSWORD[i] = 0
 
-    status.update("[!] Encryption: [yellow]Companion public key received![/yellow]")
-    LOGGER.info("Encryption: Companion public key received!")
 
-    # Вычисление симетричного ключа
-    status.update("[!] Encryption: [yellow]Symmetric key computation...[/yellow]")
-    LOGGER.info("Encryption: Symmetric key computation...")
-    AES_KEY = MY_PRIVATE_KEY.exchange(ec.ECDH(), COMPANION_PUBLIC_KEY)
+    # Получить первые и последние 4 байта подписи
+    def get_firts_last_4_chars_sign(self, sign):
 
-    status.update("[!] Encryption: [yellow]Wait 3 sec for send public key without encryption...[/yellow]")
-    time.sleep(3)
+        sign_public_bytes_pem = sign.public_bytes(
+            encoding=serialization.Encoding.X962,
+            format=serialization.PublicFormat.CompressedPoint
+        )
 
-    PRESENTATION_LEVEL.DO_ENCRYPT = True
-    PRESENTATION_LEVEL.AES_KEY = AES_KEY
+        first_4 = sign_public_bytes_pem[:4]
+        last_4 = sign_public_bytes_pem[-4:]
+        return f"{first_4.hex()}...{last_4.hex()}"
 
 
 
+    # Остановить работу CryptoLayer
+    def stop(self):
 
-def receive_node_id(node_id: str):
-    global COMPANION_NODE_ID
-    COMPANION_NODE_ID = node_id
+        self.ui_provider.update_status("CryptoLayer", "Shutting down...", "in_progress")
 
+        Base.stop_event.set()
+        BaseModule.stop_event.set()
 
-def receive_sign(sign: bytes):
-    global COMPANION_SIGN
-    COMPANION_SIGN = ec.EllipticCurvePublicKey.from_encoded_point(
-        ec.SECP256R1(),
-        sign
-    )
+        self.ui_provider.update_status("CryptoLayer", "Bye!", "success")
 
-
-def receive_public_key(public_key: bytes):
-    global COMPANION_PUBLIC_KEY
-    COMPANION_PUBLIC_KEY = ec.EllipticCurvePublicKey.from_encoded_point(
-        ec.SECP256R1(),
-        public_key
-    )
-
-
-def receive_text(text: str):
-    with patch_stdout():
-        print_formatted_text(HTML(f'<ansiblue>peer:</ansiblue> {text}'))
-
-
-def receive_ready_use_sign():
-    print("COMPANION_READY_USE_SIGN")
-    global COMPANION_READY_USE_SIGN
-    COMPANION_READY_USE_SIGN = True
-
-
-
-def sender_text_box():
-
-    while True:
-
-        with patch_stdout():
-            user_input = pt_session.prompt(HTML('<ansigreen>you></ansigreen> ')).strip()
-
-        if user_input == ":":
-            if not answer("<ansired>You want send this?</ansired>"):
-                sender_console()
-                continue
-
-        APPLICATION_LEVEL.send_text(user_input)
-
-
-# Это консоль для управления программой
-def sender_console():
-
-    print_formatted_text("c - Continue\nq - Quit from CryptoLayer")
-
-    while True:
-
-        user_input = pt_session.prompt(HTML('<ansiyellow>CMD ></ansiyellow>')).strip()
-
-        if not user_input:
-            continue
-
-        if user_input == "c":
-            return
-        elif user_input == "q":
-            sys.exit(0)
-        else:
-            error('Unknown command!')
-
-
-def encrypt_write_file(filename, password, data):
-    salt = os.urandom(16)
-    hkdf = HKDF(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        info=b"public-key-encryption",
-    )
-    up_aes_key = hkdf.derive(password)
-
-    aesgcm = AESGCM(up_aes_key)
-    nonce = os.urandom(12)
-    encrypted_data = aesgcm.encrypt(nonce, data, associated_data=None)
-
-    with open(filename, "wb") as f:
-        f.write(salt + nonce + encrypted_data)
-
-
-def read_encrypted_file(filename, password):
-    with open(filename, "rb") as f:
-        file_content = f.read()
-    return decrypt_data_AES(file_content, password)
-
-
-def decrypt_data_AES(data, password):
-
-    salt = data[:16]
-    nonce = data[16:28]
-    encrypted_data = data[28:]
-
-    hkdf = HKDF(
-        algorithm=hashes.SHA256(),
-        length=32,
-        salt=salt,
-        info=b"public-key-encryption",
-    )
-    up_aes_key = hkdf.derive(password)
-
-    aesgcm = AESGCM(up_aes_key)
-    return aesgcm.decrypt(nonce, encrypted_data, associated_data=None)
-
-
-def load_key_from_X962_bytes(key_bytes):
-    return ec.EllipticCurvePublicKey.from_encoded_point(
-        curve=ec.SECP256R1(),
-        data=key_bytes
-    )
-
-
-def get_key_bytes_X962(key):
-    return key.public_bytes(
-        encoding=serialization.Encoding.X962,
-        format=serialization.PublicFormat.CompressedPoint
-    )
-
-
-# Удалить мастер пароль из памяти
-def remove_password_from_ram():
-    for i in range(len(USER_PASSWORD)):
-        USER_PASSWORD[i] = 0
-
-
-# Получить первые и последние 4 байта подписи
-def get_firts_last_4_chars_sign(sign):
-
-    sign_public_bytes_pem = sign.public_bytes(
-        encoding=serialization.Encoding.X962,
-        format=serialization.PublicFormat.CompressedPoint
-    )
-
-    first_4 = sign_public_bytes_pem[:4]
-    last_4 = sign_public_bytes_pem[-4:]
-    return f"{first_4.hex()}...{last_4.hex()}"
-
-
-# Для вопросов
-def answer(text, yes_default=False):
-    if yes_default:
-        user_input = pt_session.prompt(HTML(f"{text} (y/N): ")).strip().lower()
-        if not user_input:
-            return True
-    else:
-        user_input = pt_session.prompt(HTML(f"{text} (y/N): ")).strip().lower()
-        if not user_input:
-            return False
-
-    if user_input in ["yes", "y"]:
-        return True
-    else:
-        return False
-
-
-def error(text):
-    print_formatted_text(HTML(f'<ansired>{text}</ansired>'))
-
-
-if __name__ == "__main__":
-    main()

@@ -8,7 +8,7 @@ from modules.base import BaseModule
 MODULES_DIR_NAME = "modules"
 
 
-MODULES = {}
+MODULES = []
 
 
 def load():
@@ -31,20 +31,16 @@ def load():
                 if issubclass(obj, BaseModule) and obj is not BaseModule:
 
                     main_class = obj()
-                    MODULES[len(MODULES)+1] = main_class
+                    MODULES.append(main_class)
 
         except ModuleNotFoundError as e:
             pass
 
 
 def get_modules():
-    return MODULES
-
-
-def get_modules_string():
-    ret = ""
-    for module_num in MODULES:
-        ret += f"{module_num}. '{MODULES[module_num].name}' - {MODULES[module_num].description}\n"
+    ret = []
+    for module in MODULES:
+        ret.append({module.name: module.description})
     return ret
 
 

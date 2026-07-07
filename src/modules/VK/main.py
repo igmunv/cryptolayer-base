@@ -29,11 +29,11 @@ class VK(BaseModule):
 
         def send(self, text: str):
             try:
-                self.vk.messages.send(user_id=self.user_id, message=text, random_id=0)
+                self.vk.messages.send(peer_id=self.user_id, message=text, random_id=0)
             except vk_api.exceptions.Captcha:
                 self.logger.error("Captcha needed. Sleep 10 sec...")
                 time.sleep(10)
-                self.vk.messages.send(user_id=self.user_id, message=text, random_id=0)
+                self.vk.messages.send(peer_id=self.user_id, message=text, random_id=0)
             time.sleep(2)
 
 

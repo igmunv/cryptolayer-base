@@ -1,32 +1,17 @@
-import os
 
 
-current_file = os.path.abspath(__file__)
-CURRENT_DIR = os.path.dirname(current_file)
-
-
-DATA_DIR_NAME = "data/"
-DATA_DIR_PATH = os.path.join(CURRENT_DIR, DATA_DIR_NAME)
-
+# Имена файлов и директорий
 KNOWN_NODES_DIR_NAME = "known_nodes/"
-KNOWN_NODES_DIR_PATH = os.path.join(DATA_DIR_PATH, KNOWN_NODES_DIR_NAME)
-
 NODE_ID_FILE_NAME = "node_id"
-NODE_ID_FILE_PATH = os.path.join(DATA_DIR_PATH, NODE_ID_FILE_NAME)
-
 SIGN_PRIVATE_FILE_NAME = "sign_private"
-SIGN_PRIVATE_FILE_PATH = os.path.join(DATA_DIR_PATH, SIGN_PRIVATE_FILE_NAME)
-
 LOGS_FILE_NAME = "crypto_layer.log"
-LOGS_FILE_PATH = os.path.join(DATA_DIR_PATH, LOGS_FILE_NAME)
 
 
+# Размер чанка (в байтах) на транспортном уровне
 CHUNK_SIZE = 150
 
-PRINT_LOGS = False
-LOGS_TO_FILE = True
 
-
+# Словарь для переходного уровня. Будет перенесен в отдельное место
 # НЕ ДОЛЖНО БЫТЬ ОДИНАКОВЫХ СЛОВ. НАДО СДЕЛАТЬ ПРОВЕРКУ
 # в отдельный файл
 DICT_WORDCODER_RU = {

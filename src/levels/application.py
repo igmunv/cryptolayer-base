@@ -24,12 +24,6 @@ class Application(Base):
         self.send(packet.to_bytes())
 
 
-    def send_ready_use_sign(self):
-        print("send_ready_use_sign")
-        packet = ApplicationPacket(PackTypes.SERVICE.value, CMDTypes.READY_USE_SIGN.value, b"0")
-        self.send(packet.to_bytes())
-
-
     def send_my_public_key(self, public_key: bytes):
         packet = ApplicationPacket(PackTypes.SERVICE.value, CMDTypes.MY_PUBLIC_KEY.value, public_key)
         self.send(packet.to_bytes())
@@ -47,9 +41,6 @@ class Application(Base):
 
             elif packet.data_type == CMDTypes.MY_SIGN.value:
                 self.UPPER_LEVEL.receive_sign(packet.payload)
-
-            elif packet.data_type == CMDTypes.READY_USE_SIGN.value:
-                self.UPPER_LEVEL.receive_ready_use_sign()
 
             elif packet.data_type == CMDTypes.MY_PUBLIC_KEY.value:
                 self.UPPER_LEVEL.receive_public_key(packet.payload)
