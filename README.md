@@ -29,6 +29,11 @@
 </div>
 <br>
 Проще говоря: для CryptoLayer любой мессенджер - это просто ненадежный "провод", поэтому всё шифрование и гарантия доставки происходят исключительно в CryptoLayer только на вашем устройстве.
+<br>
+<div align="center">
+<img src="docs/how-looks-data-transfer.png" width="750" alt="How Looks Data Transfer">
+</div>
+<br>
 
 ## ☝️ Важно
 
