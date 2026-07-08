@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cryptolayer-base"
+name = "cryptolayer"
 version = "1.0.0"
 description = "Cryptographic layer for messengers"
 dependencies = [
