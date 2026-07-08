@@ -17,18 +17,23 @@
 # Что такое CryptoLayer?
 
 **CryptoLayer** - это библиотека, которая не заменяет мессенджеры, а защищает содержимое ваших сообщений с помощью криптографии. 
+
 <br>
 <div align="center">
 <img src="docs/how-it-works-small.png" width="750" alt="How CryptoLayer Works">
 </div>
 <br>
+
 Библиотека реализует собственный сетевой стек и шифрует содержимое сообщений до того, как они попадут в мессенджер.
+
 <br>
 <div align="center">
-<img src="docs/net-levels-ru.png" width="1000" alt="Net Levels">
+<img src="docs/net-levels-ru.png" width="750" alt="Net Levels">
 </div>
 <br>
+
 Проще говоря: для CryptoLayer любой мессенджер - это просто ненадежный "провод", поэтому всё шифрование и гарантия доставки происходят исключительно в CryptoLayer только на вашем устройстве.
+
 <br>
 <div align="center">
 <img src="docs/how-looks-data-transfer.png" width="750" alt="How Looks Data Transfer">
