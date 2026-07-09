@@ -22,6 +22,9 @@ class BaseModule(ABC):
     description: str = None
     expected_credentials: list[Credential] = []
 
+    # Должен быть общим для всех модулей
+    stop_event = threading.Event()
+
 
     @property
     @abstractmethod
@@ -76,7 +79,6 @@ class BaseModule(ABC):
     def __init__(self):
         self.sender = None
         self.listener = None
-        self.stop_event = threading.Event()
 
 
     # Вызывается только в CryptoLayer

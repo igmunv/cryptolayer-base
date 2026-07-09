@@ -10,7 +10,6 @@ from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
-import module_manager
 from modules.base import BaseModule
 
 from levels.application import Application
@@ -132,22 +131,13 @@ class CryptoLayer:
 
     def init_module(self):
 
-        self.ui_provider.update_status("Module", "Loading...", "in_progress")
-
-        # Выбор мессенджера
-        module_manager.load()
-        selected_module_index = self.ui_provider.select_module(module_manager.get_modules())
-        self.MODULE_CLASS = module_manager.get_module_by_index(selected_module_index)
-
-        # ID собеседника
-        self.COMPANION_ID = self.ui_provider.request_data("Companion ID (in module)", str)
-
-        # Спрашиваем у пользователя Credentials
-        creds = self.ui_provider.get_credentials(self.MODULE_CLASS.get_creds())
+        self.ui_provider.update_status("Module", "Create session...", "in_progress")
 
         # Создаем сессию в модуле мессенджера
-        self.MODULE_CLASS.create_session(creds, self.TRANSITIONAL_LEVEL_INGESTER, self.COMPANION_ID)
+        self.MODULE_CLASS.create_session(self.TRANSITIONAL_LEVEL_INGESTER)
         self.TRANSITIONAL_LEVEL.update_levels(self.TRANSPORT_LEVEL, self.MODULE_CLASS.sender)
+
+        self.ui_provider.update_status("Module", "Done", "success")
 
 
     def signatures_setup(self):
