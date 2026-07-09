@@ -6,9 +6,13 @@ import time
 class Test(BaseModule):
 
 
-    name = "Test"
-    description = "Virt Messenger for tests"
-    expected_credentials = [Credential("Token", "User Token"), Credential("Password", "User password")]
+    @property
+    def name(self): return "Test"
+
+    @property
+    def description(self): return "Module for tests"
+
+    expected_credentials = [Credential("Nothing", "Cred for test")]
 
 
     class Sender:
@@ -30,7 +34,6 @@ class Test(BaseModule):
             self.ingester(text)
 
 
-    def create_session(self, credentials, ingester: callable, user_id):
-
-        self.listener = self.Listener(credentials, ingester, user_id)
-        self.sender = self.Sender(credentials, user_id, self.listener)
+    def create_session(self, ingester: callable):
+        self.listener = self.Listener(self.credentials, ingester, self.user_id)
+        self.sender = self.Sender(self.credentials, self.user_id, self.listener)

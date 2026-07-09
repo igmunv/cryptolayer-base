@@ -9,8 +9,12 @@ from modules.base import BaseModule, Credential
 class VK(BaseModule):
 
 
-    name = "VK"
-    description = "Russian social network"
+    @property
+    def name(self): return "VK"
+
+    @property
+    def description(self): return "Russian social network"
+
     expected_credentials = [Credential("Token", "User Access Token")]
 
     vk_session = None
@@ -56,9 +60,9 @@ class VK(BaseModule):
 
     def create_session(self, credentials, ingester: callable, user_id):
 
-        self.vk_session = vk_api.VkApi(token=credentials[0])
+        self.vk_session = vk_api.VkApi(token=self.credentials[0])
 
-        self.listener = self.Listener(credentials, ingester, user_id, self.vk_session, self.stop_event)
-        self.sender = self.Sender(credentials, user_id, self.vk_session)
+        self.listener = self.Listener(self.credentials, ingester, self.user_id, self.vk_session, self.stop_event)
+        self.sender = self.Sender(self.credentials, self.user_id, self.vk_session)
 
         threading.Thread(target=self.listener.listen).start()

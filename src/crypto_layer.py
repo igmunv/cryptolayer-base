@@ -27,10 +27,11 @@ from UIProvider import UIProvider
 class CryptoLayer:
 
 
-    def __init__(self, ui_provider: UIProvider, data_dir: str):
+    def __init__(self, ui_provider: UIProvider, data_dir: str, module_class: BaseModule):
 
         self.ui_provider = ui_provider
         self.data_dir = data_dir
+        self.MODULE_CLASS = module_class
 
         # Пути к файлам
         self.KNOWN_NODES_DIR_PATH = os.path.join(data_dir, config.KNOWN_NODES_DIR_NAME)
@@ -40,10 +41,6 @@ class CryptoLayer:
 
         # Логирование
         self.LOGGER = logging.getLogger(f"{self.__class__.__module__}.{self.__class__.__name__}")
-
-        # Модуль
-        self.MODULE_CLASS = None
-        self.MODULE_CLASS_SEND = None
 
         # ID собеседника в мессенджере
         self.COMPANION_ID = None

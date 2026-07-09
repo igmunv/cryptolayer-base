@@ -1,5 +1,6 @@
 import threading
 import logging
+from abc import ABC, abstractmethod
 
 
 class Credential:
@@ -14,37 +15,40 @@ class Credential:
         self.description = desc
 
 
-class BaseModule:
+class BaseModule(ABC):
 
 
-    name = None
-    description = None
+    name: str = None
+    description: str = None
     expected_credentials: list[Credential] = []
 
-    sender = None
-    listener = None
 
-    stop_event = threading.Event()
+    @property
+    @abstractmethod
+    def name(self):
+        pass
 
 
-    class Sender:
+    @property
+    @abstractmethod
+    def description(self):
+        pass
 
-        user_id = None
+
+    class Sender(ABC):
+
 
         def __init__(self, credentials, user_id):
             self.user_id = user_id
             self.logger = logging.getLogger(f"{self.__class__.__module__}.{self.__class__.__name__}")
 
+
+        @abstractmethod
         def send(self, text: str):
             pass
 
 
-    class Listener:
-
-
-        ingester = None
-        user_id = None
-        stop_event = None
+    class Listener(ABC):
 
 
         def __init__(self, credentials, ingester: callable, user_id, stop_event):
@@ -53,6 +57,8 @@ class BaseModule:
             self.stop_event = stop_event
             self.logger = logging.getLogger(f"{self.__class__.__module__}.{self.__class__.__name__}")
 
+
+        @abstractmethod
         def listen(self) -> str:
             pass
 
@@ -67,16 +73,30 @@ class BaseModule:
             raise TypeError(f"Class {cls.__name__} must define a unique 'description' attribute")
 
 
-    def create_session(self, credentials, ingester: callable, user_id):
-        self.sender = self.Sender(credentials, user_id)
-        self.listener = self.Listener(credentials, ingester, user_id, self.stop_event)
+    def __init__(self):
+        self.sender = None
+        self.listener = None
+        self.stop_event = threading.Event()
 
 
-    def get_exp_creds(self):
-        return self.expected_credentials
+    # Вызывается только в CryptoLayer
+    # Создаёт сессию с использованием Credentials и ID собеседника
+    def create_session(self, ingester: callable):
+        self.sender = self.Sender(self.credentials, self.user_id)
+        self.listener = self.Listener(self.credentials, ingester, self.user_id, self.stop_event)
 
-    def get_creds(self):
+
+    def get_creds(self) -> list[dict]:
         ret = []
         for cred in self.expected_credentials:
             ret.append({cred.name: cred.description})
         return ret
+
+
+    # Не вызывается в CryptoLayer
+    # Должен вызываться в приложении до передачи модуля в CryptoLayer
+    # Получает необходимые данные для работы модуля
+    def init(self, creds: list, user_id: str):
+        self.credentials = creds
+        self.user_id = user_id
+
