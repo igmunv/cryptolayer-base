@@ -10,7 +10,7 @@ from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 
-from modules.base import BaseModule
+from base_module import BaseModule
 
 from levels.application import Application
 from levels.presentation import Presentation

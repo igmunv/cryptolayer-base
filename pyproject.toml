@@ -11,7 +11,8 @@ dependencies = [
     "vk_api",
     "colorama",
     "rich",
-    "cryptography"
+    "cryptography",
+    "cryptolayer-module-interface @ git+https://github.com/igmunv/cryptolayer-module-interface.git"
 ]
 
 [tool.setuptools.package-dir]
