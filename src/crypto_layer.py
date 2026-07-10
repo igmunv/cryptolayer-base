@@ -26,11 +26,19 @@ from UIProvider import UIProvider
 class CryptoLayer:
 
 
-    def __init__(self, ui_provider: UIProvider, data_dir: str, module_class: BaseModule):
+    def __init__(self, ui_provider: UIProvider, data_dir: str, module_class: BaseModule, password: str):
 
+        # UI
         self.ui_provider = ui_provider
+
+        # Путь к директории для данных
         self.data_dir = data_dir
+
+        # Класс модуля
         self.MODULE_CLASS = module_class
+
+        # Пароль пользователя
+        self.USER_PASSWORD = bytearray(password.encode('utf-8'))
 
         # Пути к файлам
         self.KNOWN_NODES_DIR_PATH = os.path.join(data_dir, config.KNOWN_NODES_DIR_NAME)
@@ -68,9 +76,6 @@ class CryptoLayer:
         # ECC public key собеседника
         self.COMPANION_PUBLIC_KEY = None
 
-        # Пароль пользователя
-        self.USER_PASSWORD = None
-
         # Уровни
         self.TRANSITIONAL_LEVEL = None
         self.TRANSPORT_LEVEL = None
@@ -82,11 +87,6 @@ class CryptoLayer:
 
 
     def init(self):
-
-        # Спрашиваем пароль
-        upass = self.ui_provider.request_password("Your password")
-        self.USER_PASSWORD = bytearray(upass.encode('utf-8'))
-        del upass
 
         # Создаем директорию с данными
         os.makedirs(self.data_dir, exist_ok=True)

@@ -4,11 +4,6 @@ from abc import ABC, abstractmethod
 # CryptoLayer вызывает методы данного класса для передачи информации в UI
 class UIProvider(ABC):
 
-    # Запрос пароля
-    @abstractmethod
-    def request_password(self, prompt: str) -> str:
-        pass
-
     # Запрос чего-либо. Возвращаемые данные должны соответствовать data_type
     @abstractmethod
     def request_data(self, prompt: str, data_type: type):
