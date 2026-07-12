@@ -30,7 +30,7 @@ class Transport(Base):
         # Размер чанков данных в байтах
         self.CHUNK_SIZE = 100
 
-        threading.Thread(target=every_second).start()
+        threading.Thread(target=self.every_second).start()
 
 
     # Третий поток, каждую секунду выполняющий что-либо
