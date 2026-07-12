@@ -34,3 +34,8 @@ class UIProvider(ABC):
     @abstractmethod
     def on_ping_timeout(self):
         pass
+
+    # Собеседник сообщил об отключении
+    @abstractmethod
+    def on_disconnect(self):
+        pass
