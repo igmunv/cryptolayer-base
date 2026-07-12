@@ -363,9 +363,6 @@ class CryptoLayer:
         self.LOGGER.info("Encryption: Symmetric key computation...")
         self.AES_KEY = self.MY_PRIVATE_KEY.exchange(ec.ECDH(), self.COMPANION_PUBLIC_KEY)
 
-        self.ui_provider.update_status("Encryption", "Wait 3 sec for send public key without encryption...", "in_progress")
-        time.sleep(3)
-
         self.PRESENTATION_LEVEL.DO_ENCRYPT = True
         self.PRESENTATION_LEVEL.AES_KEY = self.AES_KEY
 

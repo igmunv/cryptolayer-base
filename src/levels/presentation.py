@@ -18,6 +18,17 @@ class Presentation(Base):
         self.AES_KEY = None
 
 
+    # PUBLIC фунция: её вызывает верхний уровень: отправь эти данные БЕЗ ШИФРОВАНИЯ
+    def send_without_encrypt(self, data):
+        self.logger.info(f"size: {len(data)}")
+
+        # сжатие
+        data = lzma.compress(data)
+
+        self.LOWER_LEVEL.send(data)
+
+
+
     # постоянно читает данные из PENDING_PROCESSING_BUF и обрабатывает их и отправляет выше
     def rworker(self, data):
         if self.DO_ENCRYPT:

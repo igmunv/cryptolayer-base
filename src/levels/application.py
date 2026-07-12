@@ -26,7 +26,7 @@ class Application(Base):
 
     def send_my_public_key(self, public_key: bytes):
         packet = ApplicationPacket(PackTypes.SERVICE.value, CMDTypes.MY_PUBLIC_KEY.value, public_key)
-        self.send(packet.to_bytes())
+        self.LOWER_LEVEL.send_without_encrypt(packet.to_bytes())
 
 
     def send_disconnect(self):
