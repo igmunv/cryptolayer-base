@@ -1,7 +1,7 @@
 import os
 import time
 
-from levels.packet import ApplicationPacket, PackTypes, DataTypes, CMDTypes
+from levels.packet import ApplicationPacket, PackTypes, DataTypes, CMDTypes, TextMessagePacket
 
 from levels.base import Base
 
@@ -10,7 +10,7 @@ class Application(Base):
 
 
     def send_text(self, text: str):
-        packet = ApplicationPacket(PackTypes.COMMUNIC.value, DataTypes.TEXT.value, text.encode())
+        packet = ApplicationPacket(PackTypes.COMMUNIC.value, DataTypes.TEXT.value, TextMessagePacket(int(time.time()), text.encode()).to_bytes())
         self.send(packet.to_bytes())
 
 
@@ -56,7 +56,8 @@ class Application(Base):
         elif packet.pack_type == PackTypes.COMMUNIC.value:
 
             if packet.data_type == DataTypes.TEXT.value:
-                self.UPPER_LEVEL.receive_text(packet.payload.decode())
+                text_packet = TextMessagePacket.from_bytes(packet.payload)
+                self.UPPER_LEVEL.receive_text(text_packet.time, text_packet.payload.decode())
 
 
     # постоянно читает PENDING_SEND_BUF, формирует пакет и отправляет данные ниже
