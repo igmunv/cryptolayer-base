@@ -56,8 +56,11 @@ class Transport(Base):
         timeout = 30
         while self.TIME_SINCE_LAST_PACKET > 30 and not self.stop_event.is_set():
 
+            self.logger.info(f"wait response ping")
+
             if timeout <= 0:
                 # Собеседник не отвечает на пинг 30 секунд
+                self.logger.info(f"companion is not responding to ping for more than 30 seconds")
                 self.core.on_ping_timeout()
                 break
 
@@ -66,6 +69,7 @@ class Transport(Base):
 
         if self.TIME_SINCE_LAST_PACKET <= 30 and not self.stop_event.is_set():
             # Все нормально, собедник на месте. Ничего не делаем
+            self.logger.info(f"companion is response to ping")
             pass
 
 
@@ -145,12 +149,13 @@ class Transport(Base):
 
         # Если это пакет PING, отправляем ответный PING
         if packet.flags == 0x2:
+            self.logger.info(f"receive ping packet. response...")
             self.send_ping()
 
         # Если это пакет подтверждения
         if packet.flags == 0x1:
 
-            self.logger.info(f"ack packet")
+            self.logger.info(f"receive ack packet")
 
             packet_hash = packet.payload.decode()
             with self.PENDING_ACK_PACKS_LOCK:
