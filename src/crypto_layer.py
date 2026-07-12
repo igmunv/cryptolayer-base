@@ -480,12 +480,14 @@ class CryptoLayer:
 
 
     # Остановить работу CryptoLayer
-    def stop(self):
+    def stop(self, send_disconnect=True):
 
         self.ui_provider.update_status("CryptoLayer", "Shutting down...", "in_progress")
 
-        self.APPLICATION_LEVEL.send_disconnect()
-        time.sleep(5)
+        if send_disconnect:
+            self.APPLICATION_LEVEL.send_disconnect()
+            time.sleep(5)
+
         Base.stop_event.set()
         BaseModule.stop_event.set()
 
