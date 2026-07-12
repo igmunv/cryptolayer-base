@@ -1,6 +1,5 @@
 from enum import Enum, auto, unique
 import struct
-import time
 
 
 class PackTypes(Enum):

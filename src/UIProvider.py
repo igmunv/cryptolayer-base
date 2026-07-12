@@ -16,7 +16,7 @@ class UIProvider(ABC):
 
     # Новое сообщение. Передаем его в UI
     @abstractmethod
-    def on_text_received(self, time: int, text: str):
+    def on_text_received(self, timestamp: int, text: str):
         pass
 
     # Проверка подписей на правильность
