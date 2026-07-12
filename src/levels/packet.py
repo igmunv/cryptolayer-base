@@ -97,3 +97,40 @@ class ApplicationPacket:
         _, _, _, payload = struct.unpack(dynamic_format, raw_bytes)
 
         return cls(pack_type, data_type, payload)
+
+
+# Пакет для текстового сообщения
+class TextMessagePacket:
+
+
+    HEADER_FORMAT = "!QH"
+    HEADER_SIZE = struct.calcsize(HEADER_FORMAT)
+
+
+    def __init__(self, time, payload):
+        self.time = time
+        self.size = len(payload)
+        self.payload = payload
+
+
+    # Сериализация пакета в байты
+    def to_bytes(self):
+        # Динамически упаковывает payload любой длины
+        dynamic_format = f"{self.HEADER_FORMAT}{self.size}s"
+        # Формируем и возвращаем пакет
+        return struct.pack(dynamic_format, int(self.time), self.size, self.payload)
+
+
+    # Десериализация пакета из байтов в класс
+    @classmethod
+    def from_bytes(cls, raw_bytes: bytes):
+
+        # Получаем только заголовок, чтобы узнать длину данных
+        header_bytes = raw_bytes[:cls.HEADER_SIZE]
+        time, size = struct.unpack(cls.HEADER_FORMAT, header_bytes)
+
+        # Получаем payload по size
+        dynamic_format = f"{cls.HEADER_FORMAT}{size}s"
+        _, _, payload = struct.unpack(dynamic_format, raw_bytes)
+
+        return cls(time, payload)

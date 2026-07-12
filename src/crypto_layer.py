@@ -395,8 +395,8 @@ class CryptoLayer:
         )
 
 
-    def receive_text(self, text: str):
-        self.ui_provider.on_text_received(text)
+    def receive_text(self, time: int, text: str):
+        self.ui_provider.on_text_received(time, text)
 
 
     def receive_disconnect(self):
