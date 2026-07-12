@@ -16,6 +16,10 @@ class Transport(Base):
         self.PENDING_ACK_PACKS = {}
         self.PENDING_ACK_PACKS_LOCK = threading.Lock()
 
+        # Сколько секунд прошло с получения последнего пакета
+        self.TIME_SINCE_LAST_PACKET = 0
+        self.TIME_SINCE_LAST_PACKET_LOCK = threading.Lock()
+
         # Потоки байтов которые мы ожидаем
         # ID потока: {count: количество пакетов в данном потоке, packets: [массив полученных пакетов в потоке]}
         self.WAITING_STREAMS = {}
@@ -25,6 +29,60 @@ class Transport(Base):
 
         # Размер чанков данных в байтах
         self.CHUNK_SIZE = 100
+
+        threading.Thread(target=self.every_second).start()
+
+
+    # Третий поток, каждую секунду выполняющий что-либо
+    def every_second(self):
+        while not self.stop_event.is_set():
+
+            # Если больше 30 секунд от собеседника не приходило ни одного пакета, то отправляем пинг
+            if self.TIME_SINCE_LAST_PACKET > 30:
+                self.send_with_pending_ping()
+
+            # Прибавляем единицу, чтобы понимать сколько прошло секунд с получения последнего пакета
+            with self.TIME_SINCE_LAST_PACKET_LOCK:
+                self.TIME_SINCE_LAST_PACKET += 1
+
+            time.sleep(1)
+
+
+    # Отправка ping, для проверки доступности собеседника, и ожидание ответа
+    def send_with_pending_ping(self):
+
+        self.send_ping()
+
+        timeout = 30
+        while self.TIME_SINCE_LAST_PACKET > 30 and not self.stop_event.is_set():
+
+            self.logger.info(f"wait response ping")
+
+            if timeout <= 0:
+                # Собеседник не отвечает на пинг 30 секунд
+                self.logger.info(f"companion is not responding to ping for more than 30 seconds")
+                self.core.on_ping_timeout()
+                break
+
+            timeout -= 0.5
+            time.sleep(0.5)
+
+        if self.TIME_SINCE_LAST_PACKET <= 30 and not self.stop_event.is_set():
+            # Все нормально, собедник на месте. Ничего не делаем
+            self.logger.info(f"companion is response to ping")
+            pass
+
+
+    def send_ping(self, response=False):
+
+        if response:
+            packet = TransportPacket(0x3, 0, 0, 0, int(time.time()), b'')
+        else:
+            packet = TransportPacket(0x2, 0, 0, 0, int(time.time()), b'')
+        raw_packet_bytes = packet.to_bytes()
+
+        self.logger.info(f"send ping")
+        self.LOWER_LEVEL.send(raw_packet_bytes)
 
 
     # Отправка подтверждения о получении пакета
@@ -60,9 +118,9 @@ class Transport(Base):
                 return
 
             with self.PENDING_ACK_PACKS_LOCK:
-                self.PENDING_ACK_PACKS[packet_hash] = self.PENDING_ACK_PACKS[packet_hash] + 1
+                self.PENDING_ACK_PACKS[packet_hash] = self.PENDING_ACK_PACKS[packet_hash] + 0.5
 
-            time.sleep(1)
+            time.sleep(0.5)
 
         self.logger.info(f"ack received!")
 
@@ -88,10 +146,19 @@ class Transport(Base):
             self.logger.info(f"old packet. bye")
             return
 
+        # Обнуляем счетчик секунд который означает сколько секунд прошло с момента получения последнего пакета
+        with self.TIME_SINCE_LAST_PACKET_LOCK:
+            self.TIME_SINCE_LAST_PACKET = 0
+
+        # Если это пакет PING, отправляем ответный PING
+        if packet.flags == 0x2:
+            self.logger.info(f"receive ping packet. response...")
+            self.send_ping(response=True)
+
         # Если это пакет подтверждения
         if packet.flags == 0x1:
 
-            self.logger.info(f"ack packet")
+            self.logger.info(f"receive ack packet")
 
             packet_hash = packet.payload.decode()
             with self.PENDING_ACK_PACKS_LOCK:

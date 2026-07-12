@@ -114,6 +114,8 @@ class CryptoLayer:
 
         self.ui_provider.update_status("Levels", "Loading...", "in_progress")
 
+        Base.core = self
+
         self.APPLICATION_LEVEL = Application()
         self.PRESENTATION_LEVEL = Presentation()
         self.TRANSPORT_LEVEL = Transport()
@@ -482,4 +484,9 @@ class CryptoLayer:
         BaseModule.stop_event.set()
 
         self.ui_provider.update_status("CryptoLayer", "Bye!", "success")
+
+
+    # Таймаут при пинге
+    def on_ping_timeout(self):
+        self.ui_provider.on_ping_timeout()
 

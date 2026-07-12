@@ -13,7 +13,6 @@ class DataTypes(Enum):
     BYTES = auto()
 
 class CMDTypes(Enum):
-    PING = auto() # если после последнего сообщения прошло 30 сек, то пингуем. если собеседник отправил сообщение то отчет заново идет
     UPDATE_KEYS = auto()
     DISCONNECT = auto()
     MY_NODE_ID = auto()

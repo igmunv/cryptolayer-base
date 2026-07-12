@@ -29,3 +29,8 @@ class UIProvider(ABC):
     @abstractmethod
     def on_ready(self):
         pass
+
+    # Таймаут при пинге
+    @abstractmethod
+    def on_ping_timeout(self):
+        pass
