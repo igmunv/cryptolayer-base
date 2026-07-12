@@ -7,6 +7,9 @@ class Base:
 
     stop_event = threading.Event()
 
+    # Здесь класс CryptoLayer. Это нужно для обратной связи от уровней
+    core = None
+
     def __init__(self):
 
         # Буффер пришедших данных
