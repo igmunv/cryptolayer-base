@@ -399,6 +399,10 @@ class CryptoLayer:
         self.ui_provider.on_text_received(text)
 
 
+    def receive_disconnect(self):
+        self.ui_provider.on_disconnect()
+
+
     def encrypt_write_file(self, filename, password, data):
         salt = os.urandom(16)
         hkdf = HKDF(
@@ -480,6 +484,8 @@ class CryptoLayer:
 
         self.ui_provider.update_status("CryptoLayer", "Shutting down...", "in_progress")
 
+        self.APPLICATION_LEVEL.send_disconnect()
+        time.sleep(5)
         Base.stop_event.set()
         BaseModule.stop_event.set()
 

@@ -29,6 +29,11 @@ class Application(Base):
         self.send(packet.to_bytes())
 
 
+    def send_disconnect(self):
+        packet = ApplicationPacket(PackTypes.SERVICE.value, CMDTypes.DISCONNECT.value, b'')
+        self.send(packet.to_bytes())
+
+
     # постоянно читает данные из PENDING_PROCESSING_BUF и обрабатывает их и отправляет выше
     def rworker(self, data):
 
@@ -44,6 +49,9 @@ class Application(Base):
 
             elif packet.data_type == CMDTypes.MY_PUBLIC_KEY.value:
                 self.UPPER_LEVEL.receive_public_key(packet.payload)
+
+            elif packet.data_type == CMDTypes.DISCONNECT.value:
+                self.UPPER_LEVEL.receive_disconnect()
 
         elif packet.pack_type == PackTypes.COMMUNIC.value:
 
