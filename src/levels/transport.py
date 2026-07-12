@@ -73,9 +73,12 @@ class Transport(Base):
             pass
 
 
-    def send_ping(self):
+    def send_ping(self, response=False):
 
-        packet = TransportPacket(0x2, 0, 0, 0, int(time.time()), b'')
+        if response:
+            packet = TransportPacket(0x3, 0, 0, 0, int(time.time()), b'')
+        else:
+            packet = TransportPacket(0x2, 0, 0, 0, int(time.time()), b'')
         raw_packet_bytes = packet.to_bytes()
 
         self.logger.info(f"send ping")
@@ -150,7 +153,7 @@ class Transport(Base):
         # Если это пакет PING, отправляем ответный PING
         if packet.flags == 0x2:
             self.logger.info(f"receive ping packet. response...")
-            self.send_ping()
+            self.send_ping(response=True)
 
         # Если это пакет подтверждения
         if packet.flags == 0x1:
