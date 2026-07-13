@@ -15,9 +15,26 @@ class WordCoder:
 
 
     def _check_dict(self, dictionary):
+
         for key in dictionary:
             if len(dictionary[key]) > 10:
                 raise TypeError("Word size > 10 char")
+
+        words = list(dictionary.values())
+
+        if len(words) != len(set(words)):
+            duplicates = []
+
+            seen = set()
+            for word in words:
+                if word in seen:
+                    duplicates.append(word)
+                else:
+                    seen.add(word)
+
+            raise ValueError(
+                f"Duplicates in WordCoder dictionary: {', '.join(sorted(set(duplicates)))}"
+            )
 
 
     def encode(self, bytes_array: bytes):

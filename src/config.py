@@ -11,9 +11,6 @@ LOGS_FILE_NAME = "crypto_layer.log"
 CHUNK_SIZE = 150
 
 
-# Словарь для переходного уровня. Будет перенесен в отдельное место
-# НЕ ДОЛЖНО БЫТЬ ОДИНАКОВЫХ СЛОВ. НАДО СДЕЛАТЬ ПРОВЕРКУ
-# в отдельный файл
 DICT_WORDCODER_RU = {
     0x00: "ад", 0x01: "аз", 0x02: "ай", 0x03: "ар",
     0x04: "ас", 0x05: "ах", 0x06: "бз", 0x07: "би",
@@ -81,24 +78,3 @@ DICT_WORDCODER_RU = {
     0xFC: "кум", 0xFD: "куш", 0xFE: "лье", 0xFF: "мэр"
 }
 
-
-# Проверка DICT_WORDCODER_RU на дубликаты
-# (нужно будет перенести в другое место, т.е проверка при загрузке пользовательского словаря)
-
-words = list(DICT_WORDCODER_RU.values())
-
-if len(words) != len(set(words)):
-    duplicates = []
-
-    seen = set()
-    for word in words:
-        if word in seen:
-            duplicates.append(word)
-        else:
-            seen.add(word)
-
-    raise ValueError(
-        f"Duplicates in DICT_WORDCODER_RU: {', '.join(sorted(set(duplicates)))}"
-    )
-
-# Также сделать проверку чтобы не было слов длина которых больше 10 символов

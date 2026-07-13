@@ -10,7 +10,7 @@ from cryptography.hazmat.primitives import hashes
 class Transitional(Base):
 
 
-    def __init__(self):
+    def __init__(self, wordcoder_dict):
         super().__init__()
 
         self.DO_SIGN = False
@@ -23,6 +23,8 @@ class Transitional(Base):
         # Класс-Уровень ниже
         self.LOWER_LEVEL = None
 
+        self.wc = wordcoder.WordCoder(wordcoder_dict)
+
 
     # постоянно читает данные из PENDING_PROCESSING_BUF и обрабатывает их и отправляет выше
     def rworker(self, data):
@@ -32,8 +34,8 @@ class Transitional(Base):
 
         # декодируем
         try:
-            wc = wordcoder.WordCoder(config.DICT_WORDCODER_RU)
-            data = wc.decode(encoded_packet)
+
+            data = self.wc.decode(encoded_packet)
         except Exception as e:
             self.logger.error(f"WordCoder: decode error: {e}")
             return
@@ -65,8 +67,7 @@ class Transitional(Base):
         data = sig_len + signature + data
 
         # кодирование (ТОЛЬКО ПЕРЕД ОТПРАВКОЙ СООБЩЕНИЯ)
-        wc = wordcoder.WordCoder(config.DICT_WORDCODER_RU)
-        word_array = wc.encode(data)
+        word_array = self.wc.encode(data)
 
         ready_text = " ".join(word_array)
         self.LOWER_LEVEL.send(ready_text)

@@ -26,7 +26,10 @@ from UIProvider import UIProvider
 class CryptoLayer:
 
 
-    def __init__(self, ui_provider: UIProvider, data_dir: str, module_class: BaseModule, password: str):
+    def __init__(self, ui_provider: UIProvider, data_dir: str, module_class: BaseModule, password: str, wordcoder_dict: dict):
+
+        # Словарь слов для wordcoder
+        self.WORDCODER_DICT = wordcoder_dict
 
         # UI
         self.ui_provider = ui_provider
@@ -119,7 +122,7 @@ class CryptoLayer:
         self.APPLICATION_LEVEL = Application()
         self.PRESENTATION_LEVEL = Presentation()
         self.TRANSPORT_LEVEL = Transport()
-        self.TRANSITIONAL_LEVEL = Transitional()
+        self.TRANSITIONAL_LEVEL = Transitional(self.WORDCODER_DICT)
         self.TRANSITIONAL_LEVEL_INGESTER = self.TRANSITIONAL_LEVEL.receive
 
         self.ui_provider.update_status("Levels", "Level class objects created", "in_progress")
