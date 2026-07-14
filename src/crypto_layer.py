@@ -489,7 +489,9 @@ class CryptoLayer:
 
         # Ожидаем отправления всех пакетов
         timeout = 30
-        while len(self.TRANSPORT_LEVEL.PENDING_ACK_PACKS) > 0:
+        while len(self.TRANSPORT_LEVEL.PENDING_ACK_PACKS) > 0 or len(self.APPLICATION_LEVEL.PENDING_SEND_BUF) > 0
+        or len(self.PRESENTATION_LEVEL.PENDING_SEND_BUF) > 0 or len(self.TRANSPORT_LEVEL.PENDING_SEND_BUF) > 0
+        or len(self.TRANSITIONAL_LEVEL.PENDING_SEND_BUF) > 0:
 
             if timeout <= 0:
                 break
