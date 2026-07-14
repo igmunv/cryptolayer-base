@@ -10,8 +10,8 @@ class WordCoder:
     def __init__(self, dictionary: dict):
         # слова в словаре не должны быть больше 10 символов
         self._check_dict(dictionary)
-        self.dictionary = dictionary
-        self.reverse_dictionary = {v: k for k, v in dictionary.items()}
+        self.dictionary = {int(k, 16): v for k, v in dictionary.items()}
+        self.reverse_dictionary = {v: int(k, 16) for k, v in dictionary.items()}
 
 
     def _check_dict(self, dictionary):
