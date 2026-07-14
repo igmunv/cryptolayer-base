@@ -486,7 +486,7 @@ class CryptoLayer:
 
         if send_disconnect:
             self.APPLICATION_LEVEL.send_disconnect()
-        time.sleep(1)
+            time.sleep(1)
 
         # Ожидаем отправления всех пакетов
         timeout = 30
