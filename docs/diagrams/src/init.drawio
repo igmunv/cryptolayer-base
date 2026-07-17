@@ -1,0 +1,164 @@
+<mxfile host="Electron" pages="2">
+  <diagram name="RU" id="H4ykyV4R1c_50MHCSI8p">
+    <mxGraphModel dx="1285" dy="788" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="vnaDnBArsjCvE479ec1F-1" edge="1" parent="1" source="vnaDnBArsjCvE479ec1F-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="vnaDnBArsjCvE479ec1F-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;" value="Выбор и настройка модуля" vertex="1">
+          <mxGeometry height="40" width="140" x="350" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-3" edge="1" parent="1" source="vnaDnBArsjCvE479ec1F-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="vnaDnBArsjCvE479ec1F-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="Генерация публичного ключа ECC" vertex="1">
+          <mxGeometry height="40" width="140" x="350" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-5" edge="1" parent="1" source="vnaDnBArsjCvE479ec1F-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="vnaDnBArsjCvE479ec1F-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Обмен публичными ключами" vertex="1">
+          <mxGeometry height="40" width="140" x="350" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-7" edge="1" parent="1" source="vnaDnBArsjCvE479ec1F-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="vnaDnBArsjCvE479ec1F-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="Вычисление AES ключа" vertex="1">
+          <mxGeometry height="40" width="140" x="350" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;" value="Готовность к передаче сообщений" vertex="1">
+          <mxGeometry height="40" width="140" x="350" y="830" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-10" edge="1" parent="1" source="vnaDnBArsjCvE479ec1F-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="vnaDnBArsjCvE479ec1F-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Обмен ID узлов" vertex="1">
+          <mxGeometry height="40" width="140" x="350" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-12" edge="1" parent="1" source="vnaDnBArsjCvE479ec1F-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="vnaDnBArsjCvE479ec1F-23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-13" edge="1" parent="1" source="vnaDnBArsjCvE479ec1F-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="vnaDnBArsjCvE479ec1F-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-14" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="Проверка: знаком ли этот узел (сохранена ли такая цифровая подпись раннее)" vertex="1">
+          <mxGeometry height="80" width="140" x="350" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-15" edge="1" parent="1" source="vnaDnBArsjCvE479ec1F-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="vnaDnBArsjCvE479ec1F-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-16" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="Нет" vertex="1">
+          <mxGeometry height="40" width="80" x="500" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-17" edge="1" parent="1" source="vnaDnBArsjCvE479ec1F-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="vnaDnBArsjCvE479ec1F-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-18" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;" value="&lt;b&gt;ПРОВЕРКА ЦИФРОВЫХ ПОДПИСЕЙ НА СООТВЕТСТВИЕ&lt;/b&gt;&lt;br&gt;(Проверка по внешнему независимому каналу &lt;b&gt;OOB&lt;/b&gt;)" vertex="1">
+          <mxGeometry height="90" width="160" x="460" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-19" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontStyle=1;fontSize=22;" value="Инициализация" vertex="1">
+          <mxGeometry height="30" width="300" x="270" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-20" edge="1" parent="1" source="vnaDnBArsjCvE479ec1F-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="vnaDnBArsjCvE479ec1F-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Обмен цифровыми подписями" vertex="1">
+          <mxGeometry height="40" width="140" x="350" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-22" edge="1" parent="1" source="vnaDnBArsjCvE479ec1F-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="vnaDnBArsjCvE479ec1F-4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="300" y="670" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vnaDnBArsjCvE479ec1F-23" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="Да" vertex="1">
+          <mxGeometry height="40" width="80" x="260" y="440" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="Ar3qPDgW1fs4IPupWnPB" name="EN">
+    <mxGraphModel dx="1664" dy="1020" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-1" edge="1" parent="1" source="aBwILdP4FNIoK8PhX8vM-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aBwILdP4FNIoK8PhX8vM-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;" value="&lt;i data-path-to-node=&quot;1,0,1,0,0&quot; data-index-in-node=&quot;40&quot;&gt;Select and configure module&lt;/i&gt;" vertex="1">
+          <mxGeometry height="40" width="140" x="335" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-3" edge="1" parent="1" source="aBwILdP4FNIoK8PhX8vM-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aBwILdP4FNIoK8PhX8vM-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="ECC public key generation" vertex="1">
+          <mxGeometry height="40" width="140" x="335" y="590" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-5" edge="1" parent="1" source="aBwILdP4FNIoK8PhX8vM-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aBwILdP4FNIoK8PhX8vM-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Public key exchange" vertex="1">
+          <mxGeometry height="40" width="140" x="335" y="650" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-7" edge="1" parent="1" source="aBwILdP4FNIoK8PhX8vM-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aBwILdP4FNIoK8PhX8vM-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="AES key calculation" vertex="1">
+          <mxGeometry height="40" width="140" x="335" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;" value="Ready for message transmission" vertex="1">
+          <mxGeometry height="40" width="140" x="335" y="770" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-10" edge="1" parent="1" source="aBwILdP4FNIoK8PhX8vM-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aBwILdP4FNIoK8PhX8vM-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Node ID exchange" vertex="1">
+          <mxGeometry height="40" width="140" x="335" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-12" edge="1" parent="1" source="aBwILdP4FNIoK8PhX8vM-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aBwILdP4FNIoK8PhX8vM-23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-13" edge="1" parent="1" source="aBwILdP4FNIoK8PhX8vM-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aBwILdP4FNIoK8PhX8vM-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-14" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="Check: is this node known? (has this digital signature been saved before?)" vertex="1">
+          <mxGeometry height="80" width="140" x="335" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-15" edge="1" parent="1" source="aBwILdP4FNIoK8PhX8vM-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aBwILdP4FNIoK8PhX8vM-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-16" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="No" vertex="1">
+          <mxGeometry height="40" width="80" x="485" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-17" edge="1" parent="1" source="aBwILdP4FNIoK8PhX8vM-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="aBwILdP4FNIoK8PhX8vM-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-18" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;" value="&lt;b&gt;SIGNATURE VERIFICATION &lt;/b&gt;(OUT-OF-BAND)" vertex="1">
+          <mxGeometry height="90" width="160" x="445" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-19" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontStyle=1;fontSize=22;" value="Initialization" vertex="1">
+          <mxGeometry height="30" width="300" x="255" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-20" edge="1" parent="1" source="aBwILdP4FNIoK8PhX8vM-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aBwILdP4FNIoK8PhX8vM-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Digital signature exchange" vertex="1">
+          <mxGeometry height="40" width="140" x="335" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-22" edge="1" parent="1" source="aBwILdP4FNIoK8PhX8vM-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="aBwILdP4FNIoK8PhX8vM-4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="285" y="610" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-23" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="Yes" vertex="1">
+          <mxGeometry height="40" width="80" x="245" y="380" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

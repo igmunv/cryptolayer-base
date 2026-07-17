@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/logo.svg" width="250" alt="CryptoLayer Logo">
+<img src="docs/images/logo.svg" width="250" alt="CryptoLayer Logo">
 
 <br>
 <h3>CryptoLayer</h3>
@@ -20,7 +20,7 @@
 
 <br>
 <div align="center">
-<img src="docs/how-it-works-small.png" width="750" alt="How CryptoLayer Works">
+<img src="docs/diagrams/how-it-works-small-RU.png" width="750" alt="How CryptoLayer Works">
 </div>
 <br>
 
@@ -28,7 +28,7 @@
 
 <br>
 <div align="center">
-<img src="docs/net-levels-ru.png" width="750" alt="Net Levels">
+<img src="docs/diagrams/net-levels-RU.png" width="750" alt="Net Levels">
 </div>
 <br>
 
@@ -36,7 +36,7 @@
 
 <br>
 <div align="center">
-<img src="docs/how-looks-data-transfer.png" width="750" alt="How Looks Data Transfer">
+<img src="docs/diagrams/how-looks-data-transfer-RU.png" width="750" alt="How Looks Data Transfer">
 </div>
 <br>
 

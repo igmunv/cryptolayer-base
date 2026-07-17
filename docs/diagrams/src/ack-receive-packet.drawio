@@ -1,0 +1,134 @@
+<mxfile host="Electron" pages="2">
+  <diagram name="RU" id="5_csWzSRUm9c--wNkHLc">
+    <mxGraphModel dx="1414" dy="867" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="U45LNSPg-kFRU_Ojn5GQ-1" edge="1" parent="1" source="U45LNSPg-kFRU_Ojn5GQ-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="U45LNSPg-kFRU_Ojn5GQ-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="U45LNSPg-kFRU_Ojn5GQ-2" edge="1" parent="1" source="U45LNSPg-kFRU_Ojn5GQ-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="U45LNSPg-kFRU_Ojn5GQ-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="U45LNSPg-kFRU_Ojn5GQ-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Отправка пакета" vertex="1">
+          <mxGeometry height="40" width="160" x="215" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="U45LNSPg-kFRU_Ojn5GQ-4" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b style=&quot;&quot;&gt;&lt;font style=&quot;font-size: 18px;&quot;&gt;Отправитель&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="175" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="U45LNSPg-kFRU_Ojn5GQ-5" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;&lt;b style=&quot;&quot;&gt;Получатель&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="455" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="U45LNSPg-kFRU_Ojn5GQ-6" edge="1" parent="1" source="U45LNSPg-kFRU_Ojn5GQ-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="575" y="470" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="U45LNSPg-kFRU_Ojn5GQ-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Получение пакета" vertex="1">
+          <mxGeometry height="40" width="160" x="495" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="U45LNSPg-kFRU_Ojn5GQ-8" edge="1" parent="1" source="U45LNSPg-kFRU_Ojn5GQ-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="U45LNSPg-kFRU_Ojn5GQ-12">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="U45LNSPg-kFRU_Ojn5GQ-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Отправка подтверждения получения пакета с хешем" vertex="1">
+          <mxGeometry height="40" width="160" x="495" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="U45LNSPg-kFRU_Ojn5GQ-10" edge="1" parent="1" source="U45LNSPg-kFRU_Ojn5GQ-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fillColor=#f8cecc;strokeColor=#b85450;" target="U45LNSPg-kFRU_Ojn5GQ-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="U45LNSPg-kFRU_Ojn5GQ-11" edge="1" parent="1" source="U45LNSPg-kFRU_Ojn5GQ-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fillColor=#d5e8d4;strokeColor=#82b366;" target="U45LNSPg-kFRU_Ojn5GQ-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="U45LNSPg-kFRU_Ojn5GQ-12" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Ожидание подтверждения" vertex="1">
+          <mxGeometry height="40" width="160" x="215" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="U45LNSPg-kFRU_Ojn5GQ-13" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Таймаут: повторная отправка" vertex="1">
+          <mxGeometry height="40" width="125" x="305" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="U45LNSPg-kFRU_Ojn5GQ-14" edge="1" parent="1" source="U45LNSPg-kFRU_Ojn5GQ-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="U45LNSPg-kFRU_Ojn5GQ-3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="175" y="570" />
+              <mxPoint x="175" y="410" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="U45LNSPg-kFRU_Ojn5GQ-15" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Переход к следующему пакету" vertex="1">
+          <mxGeometry height="40" width="160" x="215" y="550" as="geometry" />
+        </mxCell>
+        <mxCell id="U45LNSPg-kFRU_Ojn5GQ-16" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Подтверждение получено" vertex="1">
+          <mxGeometry height="40" width="100" x="305" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="U45LNSPg-kFRU_Ojn5GQ-17" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b style=&quot;&quot;&gt;&lt;font style=&quot;font-size: 22px;&quot;&gt;Гарантия доставки: подтверждение&amp;nbsp; получения пакета&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="520" x="155" y="250" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="EN" id="TZBZBohDMyZFhqXH_LbY">
+    <mxGraphModel dx="1178" dy="723" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-0" />
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-1" parent="vUw8xrHoCW6xeHrzNjyt-0" />
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-2" edge="1" parent="vUw8xrHoCW6xeHrzNjyt-1" source="vUw8xrHoCW6xeHrzNjyt-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="vUw8xrHoCW6xeHrzNjyt-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-3" edge="1" parent="vUw8xrHoCW6xeHrzNjyt-1" source="vUw8xrHoCW6xeHrzNjyt-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="vUw8xrHoCW6xeHrzNjyt-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-4" parent="vUw8xrHoCW6xeHrzNjyt-1" style="rounded=0;whiteSpace=wrap;html=1;" value="Send packet" vertex="1">
+          <mxGeometry height="40" width="160" x="215" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-5" parent="vUw8xrHoCW6xeHrzNjyt-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b style=&quot;&quot;&gt;&lt;font style=&quot;font-size: 18px;&quot;&gt;Sender&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="175" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-6" parent="vUw8xrHoCW6xeHrzNjyt-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;&lt;b style=&quot;&quot;&gt;Receiver&lt;/b&gt;&lt;/font&gt;" vertex="1">
+          <mxGeometry height="40" width="240" x="455" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-7" edge="1" parent="vUw8xrHoCW6xeHrzNjyt-1" source="vUw8xrHoCW6xeHrzNjyt-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="575" y="470" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-8" parent="vUw8xrHoCW6xeHrzNjyt-1" style="rounded=0;whiteSpace=wrap;html=1;" value="Receive packet" vertex="1">
+          <mxGeometry height="40" width="160" x="495" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-9" edge="1" parent="vUw8xrHoCW6xeHrzNjyt-1" source="vUw8xrHoCW6xeHrzNjyt-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="vUw8xrHoCW6xeHrzNjyt-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-10" parent="vUw8xrHoCW6xeHrzNjyt-1" style="rounded=0;whiteSpace=wrap;html=1;" value="Send packet acknowledgment with hash" vertex="1">
+          <mxGeometry height="40" width="160" x="495" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-11" edge="1" parent="vUw8xrHoCW6xeHrzNjyt-1" source="vUw8xrHoCW6xeHrzNjyt-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;fillColor=#f8cecc;strokeColor=#b85450;" target="vUw8xrHoCW6xeHrzNjyt-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-12" edge="1" parent="vUw8xrHoCW6xeHrzNjyt-1" source="vUw8xrHoCW6xeHrzNjyt-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fillColor=#d5e8d4;strokeColor=#82b366;" target="vUw8xrHoCW6xeHrzNjyt-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-13" parent="vUw8xrHoCW6xeHrzNjyt-1" style="rounded=0;whiteSpace=wrap;html=1;" value="Wait for acknowledgment" vertex="1">
+          <mxGeometry height="40" width="160" x="215" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-14" parent="vUw8xrHoCW6xeHrzNjyt-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Timeout: retransmit packet" vertex="1">
+          <mxGeometry height="40" width="110" x="305" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-15" edge="1" parent="vUw8xrHoCW6xeHrzNjyt-1" source="vUw8xrHoCW6xeHrzNjyt-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="vUw8xrHoCW6xeHrzNjyt-4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="175" y="570" />
+              <mxPoint x="175" y="410" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-16" parent="vUw8xrHoCW6xeHrzNjyt-1" style="rounded=0;whiteSpace=wrap;html=1;" value="Proceed to next packet" vertex="1">
+          <mxGeometry height="40" width="160" x="215" y="550" as="geometry" />
+        </mxCell>
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-17" parent="vUw8xrHoCW6xeHrzNjyt-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Acknowledgment received" vertex="1">
+          <mxGeometry height="40" width="100" x="305" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="vUw8xrHoCW6xeHrzNjyt-18" parent="vUw8xrHoCW6xeHrzNjyt-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;b style=&quot;&quot;&gt;&lt;font style=&quot;font-size: 22px;&quot;&gt;Guaranteed delivery: packet ACKnowledgment&lt;/font&gt;&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="520" x="155" y="250" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
