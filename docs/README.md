@@ -27,7 +27,7 @@ CryptoLayer - это библиотека, позволяющая безопас
 
 <br>
 <div align="center">
-<img src="docs/diagrams/how-it-works-small-RU.png" width="750" alt="How It Works">
+<img src="diagrams/how-it-works-small-RU.png" width="750" alt="How It Works">
 </div>
 <br>
 
@@ -39,7 +39,7 @@ CryptoLayer - это библиотека, позволяющая безопас
 
 <br>
 <div align="center">
-<img src="docs/diagrams/how-looks-data-transfer-RU.png" width="750" alt="How Looks Data Transfer">
+<img src="diagrams/how-looks-data-transfer-RU.png" width="750" alt="How Looks Data Transfer">
 </div>
 <br>
 
@@ -49,7 +49,7 @@ CryptoLayer - это библиотека, позволяющая безопас
 
 <br>
 <div align="center">
-<img src="docs/diagrams/arch-RU.png" width="750" alt="Archirecture">
+<img src="diagrams/arch-RU.png" width="750" alt="Archirecture">
 </div>
 <br>
 
@@ -61,7 +61,7 @@ CryptoLayer - это библиотека, позволяющая безопас
 
 <br>
 <div align="center">
-<img src="docs/diagrams/net-levels-RU.png" width="750" alt="Net Levels">
+<img src="diagrams/net-levels-RU.png" width="750" alt="Net Levels">
 </div>
 <br>
 
