@@ -46,7 +46,7 @@
         <mxCell id="eo51WXHSP3mHvzmIa87W-47" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;strokeWidth=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="&lt;div style=&quot;&quot;&gt;Подпись, преобразование байтов в слова&lt;/div&gt;" vertex="1">
           <mxGeometry height="40" width="200" x="1000" y="340" as="geometry" />
         </mxCell>
-        <mxCell id="eo51WXHSP3mHvzmIa87W-50" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;dashed=1;dashPattern=8 8;fontStyle=1" value="Управляющий" vertex="1">
+        <mxCell id="eo51WXHSP3mHvzmIa87W-50" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;dashed=1;dashPattern=8 8;fontStyle=1" value="Менеджер" vertex="1">
           <mxGeometry height="40" width="160" x="1360" y="160" as="geometry" />
         </mxCell>
         <mxCell id="eo51WXHSP3mHvzmIa87W-51" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;dashed=1;dashPattern=8 8;" value="crypto_layer.py" vertex="1">
