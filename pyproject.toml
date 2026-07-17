@@ -12,7 +12,8 @@ dependencies = [
     "colorama",
     "rich",
     "cryptography",
-    "cryptolayer-module-interface @ git+https://github.com/igmunv/cryptolayer-module-interface.git"
+    "cryptolayer-module-interface @ git+https://github.com/igmunv/cryptolayer-module-interface.git",
+    "zstandard"
 ]
 
 [tool.setuptools.package-dir]
