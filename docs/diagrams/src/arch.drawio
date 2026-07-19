@@ -1,13 +1,13 @@
 <mxfile host="Electron" pages="2">
   <diagram name="RU" id="zEX1-Cbp2asFqXu51f78">
-    <mxGraphModel dx="564" dy="867" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="125" dy="598" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="eo51WXHSP3mHvzmIa87W-53" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#bac8d3;strokeColor=none;" value="" vertex="1">
           <mxGeometry height="320" width="560" x="980" y="140" as="geometry" />
         </mxCell>
-        <mxCell id="eo51WXHSP3mHvzmIa87W-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;strokeWidth=2;dashed=1;dashPattern=8 8;fontStyle=1" value="Канал передачи данных" vertex="1">
+        <mxCell id="eo51WXHSP3mHvzmIa87W-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;strokeWidth=2;dashed=1;dashPattern=8 8;fontStyle=1" value="Модуль" vertex="1">
           <mxGeometry height="40" width="160" x="1360" y="400" as="geometry" />
         </mxCell>
         <mxCell id="eo51WXHSP3mHvzmIa87W-22" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=center;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1;fontStyle=1" value="Уровень представления" vertex="1">
@@ -31,7 +31,7 @@
         <mxCell id="eo51WXHSP3mHvzmIa87W-29" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1;" value="Разбиение на чанки, гарантия доставки, транспортные пакеты" vertex="1">
           <mxGeometry height="40" width="200" x="1000" y="300" as="geometry" />
         </mxCell>
-        <mxCell id="eo51WXHSP3mHvzmIa87W-30" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;dashed=1;dashPattern=8 8;" value="Модуль. Взаимодействие с каналом связи" vertex="1">
+        <mxCell id="eo51WXHSP3mHvzmIa87W-30" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;dashed=1;dashPattern=8 8;" value="Взаимодействие с каналом связи" vertex="1">
           <mxGeometry height="40" width="200" x="1000" y="400" as="geometry" />
         </mxCell>
         <mxCell id="eo51WXHSP3mHvzmIa87W-31" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1;" value="Сжатие и шифрование" vertex="1">
@@ -68,14 +68,14 @@
     </mxGraphModel>
   </diagram>
   <diagram name="EN" id="z2Z27SRLiTKFBRKd4AUC">
-    <mxGraphModel dx="328" dy="723" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="564" dy="867" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="ZUzFDVXcIwX0zSlb574t-0" />
         <mxCell id="ZUzFDVXcIwX0zSlb574t-1" parent="ZUzFDVXcIwX0zSlb574t-0" />
         <mxCell id="ZUzFDVXcIwX0zSlb574t-2" parent="ZUzFDVXcIwX0zSlb574t-1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#bac8d3;strokeColor=none;" value="" vertex="1">
           <mxGeometry height="320" width="560" x="980" y="140" as="geometry" />
         </mxCell>
-        <mxCell id="ZUzFDVXcIwX0zSlb574t-3" parent="ZUzFDVXcIwX0zSlb574t-1" style="rounded=0;whiteSpace=wrap;html=1;align=center;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;strokeWidth=2;dashed=1;dashPattern=8 8;fontStyle=1" value="&lt;span data-path-to-node=&quot;1,0,1,0,0&quot; data-index-in-node=&quot;0&quot; style=&quot;&quot;&gt;Data link channel&lt;/span&gt;" vertex="1">
+        <mxCell id="ZUzFDVXcIwX0zSlb574t-3" parent="ZUzFDVXcIwX0zSlb574t-1" style="rounded=0;whiteSpace=wrap;html=1;align=center;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;strokeWidth=2;dashed=1;dashPattern=8 8;fontStyle=1" value="&lt;span data-path-to-node=&quot;1,0,1,0,0&quot; data-index-in-node=&quot;0&quot; style=&quot;&quot;&gt;Module&lt;/span&gt;" vertex="1">
           <mxGeometry height="40" width="160" x="1360" y="400" as="geometry" />
         </mxCell>
         <mxCell id="ZUzFDVXcIwX0zSlb574t-4" parent="ZUzFDVXcIwX0zSlb574t-1" style="rounded=0;whiteSpace=wrap;html=1;align=center;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1;fontStyle=1" value="Presentation level" vertex="1">
@@ -99,7 +99,7 @@
         <mxCell id="ZUzFDVXcIwX0zSlb574t-10" parent="ZUzFDVXcIwX0zSlb574t-1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1;" value="Chunking, guaranteed delivery, transport packets" vertex="1">
           <mxGeometry height="40" width="200" x="1000" y="300" as="geometry" />
         </mxCell>
-        <mxCell id="ZUzFDVXcIwX0zSlb574t-11" parent="ZUzFDVXcIwX0zSlb574t-1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;dashed=1;dashPattern=8 8;" value="Module. Interaction with communication channel" vertex="1">
+        <mxCell id="ZUzFDVXcIwX0zSlb574t-11" parent="ZUzFDVXcIwX0zSlb574t-1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;dashed=1;dashPattern=8 8;" value="Interaction with communication channel" vertex="1">
           <mxGeometry height="40" width="200" x="1000" y="400" as="geometry" />
         </mxCell>
         <mxCell id="ZUzFDVXcIwX0zSlb574t-12" parent="ZUzFDVXcIwX0zSlb574t-1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=1;" value="Compression and encryption" vertex="1">
