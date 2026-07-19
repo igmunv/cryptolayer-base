@@ -1,13 +1,13 @@
 <mxfile host="Electron" pages="2">
   <diagram name="RU" id="H4ykyV4R1c_50MHCSI8p">
-    <mxGraphModel dx="1285" dy="788" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1414" dy="867" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="vnaDnBArsjCvE479ec1F-1" edge="1" parent="1" source="vnaDnBArsjCvE479ec1F-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="vnaDnBArsjCvE479ec1F-11">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="vnaDnBArsjCvE479ec1F-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;" value="Выбор и настройка модуля" vertex="1">
+        <mxCell id="vnaDnBArsjCvE479ec1F-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1;" value="Настройка уровней и модуля" vertex="1">
           <mxGeometry height="40" width="140" x="350" y="160" as="geometry" />
         </mxCell>
         <mxCell id="vnaDnBArsjCvE479ec1F-3" edge="1" parent="1" source="vnaDnBArsjCvE479ec1F-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="vnaDnBArsjCvE479ec1F-6">
@@ -81,14 +81,14 @@
     </mxGraphModel>
   </diagram>
   <diagram id="Ar3qPDgW1fs4IPupWnPB" name="EN">
-    <mxGraphModel dx="1664" dy="1020" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1414" dy="867" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="aBwILdP4FNIoK8PhX8vM-1" edge="1" parent="1" source="aBwILdP4FNIoK8PhX8vM-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aBwILdP4FNIoK8PhX8vM-11">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="aBwILdP4FNIoK8PhX8vM-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;" value="&lt;i data-path-to-node=&quot;1,0,1,0,0&quot; data-index-in-node=&quot;40&quot;&gt;Select and configure module&lt;/i&gt;" vertex="1">
+        <mxCell id="aBwILdP4FNIoK8PhX8vM-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=1;fontStyle=0" value="&lt;span data-index-in-node=&quot;40&quot; data-path-to-node=&quot;1,0,1,0,0&quot;&gt;Configure levels and module&lt;/span&gt;" vertex="1">
           <mxGeometry height="40" width="140" x="335" y="100" as="geometry" />
         </mxCell>
         <mxCell id="aBwILdP4FNIoK8PhX8vM-3" edge="1" parent="1" source="aBwILdP4FNIoK8PhX8vM-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="aBwILdP4FNIoK8PhX8vM-6">
