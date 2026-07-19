@@ -1,10 +1,10 @@
 <mxfile host="Electron" pages="2">
   <diagram name="RU" id="i4AJW4cDHvIpAYghTBOj">
-    <mxGraphModel dx="1178" dy="723" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1414" dy="867" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="vfVV4Qoi_cIunkNZfSw6-1" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontStyle=1;fontSize=24;" value="Цепочка-схема передачи сообщений" vertex="1">
+        <mxCell id="vfVV4Qoi_cIunkNZfSw6-1" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontStyle=1;fontSize=24;" value="Конвейер / цепочка обработки сообщений" vertex="1">
           <mxGeometry height="40" width="940" x="340" y="290" as="geometry" />
         </mxCell>
         <mxCell id="vfVV4Qoi_cIunkNZfSw6-2" edge="1" parent="1" source="vfVV4Qoi_cIunkNZfSw6-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;">
@@ -171,11 +171,11 @@
     </mxGraphModel>
   </diagram>
   <diagram id="NEuCkjv9n1_VusTQWZkD" name="EN">
-    <mxGraphModel dx="975" dy="598" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1414" dy="867" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="NmiPTEwxaYA9GG__ZCoZ-1" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontStyle=1;fontSize=24;" value="Message transmission chain" vertex="1">
+        <mxCell id="NmiPTEwxaYA9GG__ZCoZ-1" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontStyle=1;fontSize=24;" value="Message processing pipeline" vertex="1">
           <mxGeometry height="40" width="940" x="250" y="110" as="geometry" />
         </mxCell>
         <mxCell id="NmiPTEwxaYA9GG__ZCoZ-2" edge="1" parent="1" source="NmiPTEwxaYA9GG__ZCoZ-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;">
