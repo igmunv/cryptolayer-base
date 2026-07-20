@@ -10,3 +10,5 @@ LOGS_FILE_NAME = "crypto_layer.log"
 # Размер чанка (в байтах) на транспортном уровне
 CHUNK_SIZE = 150
 
+# Качество сжатия
+COMPRESS_QUALITY = 11
