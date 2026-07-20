@@ -608,5 +608,30 @@ class Example(BaseModule):
 
 ### 5.3. Тестирование собственного модуля
 
+Для того, чтобы протестировать ваш модуль, вы можете использовать [CryptoLayer CLI](https://github.com/igmunv/cryptolayer-cli).
 
+Скачайте содержимое репозитория [CryptoLayer CLI](https://github.com/igmunv/cryptolayer-cli).
 
+Далее один раз запустите программу с помощью `./run.sh` или по инструкции в [README.md](https://github.com/igmunv/cryptolayer-cli/blob/main/README.md). 
+
+После этого выйдете из программы.
+
+Скопируйте директорию своего модуля в `src/modules/`.
+
+Далее запустите CryptoLayer CLI, **НО не через `./run.sh`, а следующим образом**:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+python3 src/modules/generate_reqs.py # Генерируем список зависимостей модулей, с учетом вашего нового модуля
+pip install -r src/modules/common_requirements.txt # Устанавливаем зависимости модулей
+python3 src/cryptolayer_cli.py
+```
+
+В CryptoLayer CLI появится ваш модуль, теперь вы можете тестировать его.
+
+Если потребуется изменить код модуля, то можете делать это прямо в `src/modules/`. 
+
+**Главное не запускайте `./run.sh` и команду `git submodule update --init --recursive` после копирования модуля в `src/modules/`, так как это удалит ваш модуль!**
+
+После успешного тестирования, можете отправить модуль [в официальный репозиторий, где собраны модули CryptoLayer](https://github.com/igmunv/cryptolayer-modules)!
