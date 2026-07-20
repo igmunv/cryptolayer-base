@@ -1,11 +1,13 @@
 import os
 import time
 
-import zstandard as zstd
+import brotli
 
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 from levels.base import Base
+
+import config
 
 
 class Presentation(Base):
@@ -18,13 +20,18 @@ class Presentation(Base):
         self.AES_KEY = None
 
 
+    def compress(self, data):
+        return brotli.compress(data, quality=config.COMPRESS_QUALITY)
+
+    def decompress(self, data):
+        return brotli.decompress(data)
+
+
     # PUBLIC фунция: её вызывает верхний уровень: отправь эти данные БЕЗ ШИФРОВАНИЯ
     def send_without_encrypt(self, data):
         self.logger.info(f"size: {len(data)}")
 
-        # сжатие
-        cctx = zstd.ZstdCompressor(level=22)
-        data = cctx.compress(data)
+        data = self.compress(data)
 
         self.LOWER_LEVEL.send(data)
 
@@ -46,10 +53,9 @@ class Presentation(Base):
                 return
 
         try:
-            dctx = zstd.ZstdDecompressor()
-            data = dctx.decompress(data)
+            data = self.decompress(data)
         except Exception as e:
-            self.logger.error(f"zstd decompress error: {e}")
+            self.logger.error(f"decompress error: {e}")
             return
 
         self.UPPER_LEVEL.receive(data)
@@ -59,8 +65,7 @@ class Presentation(Base):
     def sworker(self, data):
 
         # сжатие
-        cctx = zstd.ZstdCompressor(level=22)
-        data = cctx.compress(data)
+        data = self.compress(data)
 
         # шифрование
         if self.DO_ENCRYPT:

@@ -13,7 +13,7 @@ dependencies = [
     "rich",
     "cryptography",
     "cryptolayer-module-interface @ git+https://github.com/igmunv/cryptolayer-module-interface.git",
-    "zstandard"
+    "brotli"
 ]
 
 [tool.setuptools.package-dir]
