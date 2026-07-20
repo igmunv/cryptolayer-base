@@ -1,4 +1,4 @@
-<img width="576" height="413" alt="image" src="https://github.com/user-attachments/assets/258bb8bf-5d26-4bfd-941e-6c017257bc5d" /># Документация
+# Документация
 
 ## Содержание
 
